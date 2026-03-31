@@ -1,0 +1,31 @@
+.tt-icon-selector {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.tt-icon-option {
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tt-surface2);
+  border: 1px solid var(--tt-border2);
+  border-radius: 8px;
+  color: var(--tt-text-dim);
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tt-icon-option:hover {
+  border-color: var(--tt-accent);
+  color: var(--tt-text);
+}
+
+.tt-icon-option.selected {
+  background: rgba(79, 143, 255, 0.15);
+  border-color: var(--tt-accent);
+  color: var(--tt-accent);
+}

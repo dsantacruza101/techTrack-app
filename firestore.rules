@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdminOrSuperAdmin() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+          in ['admin', 'superAdmin'];
+    }
+
+    // Users collection: only admins/superAdmins can read or write
+    match /users/{userId} {
+      allow read, write: if isAdminOrSuperAdmin();
+
+      // Users can read and write their own profile
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Assets: admins/superAdmins can create/edit/delete; regular users can only read
+    match /assets/{assetId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdminOrSuperAdmin();
+    }
+
+    // Categories: admins/superAdmins can create/edit/delete; regular users can only read
+    match /categories/{categoryId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdminOrSuperAdmin();
+    }
+
+    // Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

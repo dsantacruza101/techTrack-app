@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;0,700;1,300&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── Override PrimeReact's default font to our brand font ────────── */
+:root {
+  --font-family: 'DM Sans', sans-serif;
+}
+
+/* ── Brand accent colors ─────────────────────────────────────────── */
+:root {
+  --tt-accent:  #4f8fff;
+  --tt-green:   #22c55e;
+  --tt-yellow:  #f59e0b;
+  --tt-red:     #ef4444;
+  --tt-orange:  #f97316;
+  --tt-cyan:    #06b6d4;
+
+  /* Override PrimeReact primary to our brand blue */
+  --primary-color:        #4f8fff;
+  --primary-color-text:   #ffffff;
+  --highlight-bg:         rgba(79, 143, 255, 0.16);
+  --highlight-text-color: #4f8fff;
+  --focus-ring:           0 0 0 2px var(--surface-ground), 0 0 0 4px #4f8fff;
+}
+
+/* ── Font utilities ──────────────────────────────────────────────── */
+.font-serif { font-family: 'Fraunces', serif !important; }
+.font-mono  { font-family: 'DM Mono', monospace !important; }
+
+/* ── Reset ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root { height: 100%; }
+
+body {
+  background: var(--surface-ground);
+  font-family: var(--font-family);
+  color: var(--text-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface-d); border-radius: 99px; }
+
+/* ── PrimeReact component overrides ─────────────────────────────── */
+/* The lara-dark-blue theme hardcodes colors — override to match our palette */
+
+.p-inputtext,
+.p-password .p-inputtext,
+.p-calendar .p-inputtext,
+.p-inputnumber-input {
+  background: #1a1f2e !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.87) !important;
+}
+
+.p-inputtext:enabled:hover,
+.p-password .p-inputtext:enabled:hover,
+.p-calendar:not(.p-disabled):hover .p-inputtext {
+  border-color: var(--primary-color) !important;
+}
+
+.p-inputtext:enabled:focus,
+.p-password .p-inputtext:enabled:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0.15rem rgba(79, 143, 255, 0.2) !important;
+}
+
+.p-dropdown {
+  background: #1a1f2e !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.p-dropdown:not(.p-disabled):hover {
+  border-color: var(--primary-color) !important;
+}
+
+.p-inputtextarea {
+  background: #1a1f2e !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ── Entry animation ─────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.35s ease both; }
+
+/* ── Shared table helpers ────────────────────────────────────────── */
+.tt-row-disabled { opacity: 0.45; }
+
+.tt-confirm-danger {
+  background: var(--tt-red) !important;
+  border-color: var(--tt-red) !important;
+}

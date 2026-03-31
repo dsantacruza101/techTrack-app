@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(node:*)",
+      "Bash(gcloud auth:*)",
+      "Bash(firebase login:*)",
+      "Bash(firebase projects:list)",
+      "Bash(npm run:*)"
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+/* Nav item — only interactive states need CSS (hover/active pseudo-classes) */
+.tt-nav-item {
+  text-decoration: none;
+  color: var(--text-color-secondary);
+  border: 1px solid transparent;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tt-nav-item:hover {
+  background: var(--surface-hover);
+  color: var(--text-color);
+}
+
+.tt-nav-item.active {
+  background: var(--highlight-bg);
+  color: var(--primary-color);
+  border-color: rgba(79, 143, 255, 0.2);
+  font-weight: 500;
+}
+
+.tt-nav-item.active .tt-nav-badge {
+  background: var(--highlight-bg);
+  border-color: rgba(79, 143, 255, 0.3);
+  color: var(--primary-color);
+}

@@ -1,0 +1,20 @@
+/* Fixed sidebar shell — can't be done with PrimeFlex alone */
+.tt-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 240px;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+/* Main content offset */
+.tt-main { margin-left: 240px; }
+
+@media (max-width: 767px) {
+  .tt-main { margin-left: 0; }
+}
+
+/* Hide PrimeReact Sidebar close button in mobile drawer */
+.tt-mobile-drawer .p-sidebar-close { display: none; }
