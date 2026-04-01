@@ -1,32 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;0,700;1,300&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-/* ── Override PrimeReact's default font to our brand font ────────── */
+/* ── Variables de Marca y Sistema ──────────────────────────────── */
 :root {
   --font-family: 'DM Sans', sans-serif;
-}
-
-/* ── Brand accent colors ─────────────────────────────────────────── */
-:root {
-  --tt-accent:  #4f8fff;
-  --tt-green:   #22c55e;
-  --tt-yellow:  #f59e0b;
-  --tt-red:     #ef4444;
-  --tt-orange:  #f97316;
-  --tt-cyan:    #06b6d4;
-
-  /* Override PrimeReact primary to our brand blue */
-  --primary-color:        #4f8fff;
-  --primary-color-text:   #ffffff;
-  --highlight-bg:         rgba(79, 143, 255, 0.16);
+  --primary-color: #4f8fff;
+  --primary-color-text: #ffffff;
+  --highlight-bg: rgba(79, 143, 255, 0.16);
   --highlight-text-color: #4f8fff;
-  --focus-ring:           0 0 0 2px var(--surface-ground), 0 0 0 4px #4f8fff;
+  
+  /* Colores de superficie consistentes */
+  --tt-bg-input: #1a1f2e;
+  --tt-border: rgba(255, 255, 255, 0.1);
+  --tt-red: #f87171;
 }
 
-/* ── Font utilities ──────────────────────────────────────────────── */
-.font-serif { font-family: 'Fraunces', serif !important; }
-.font-mono  { font-family: 'DM Mono', monospace !important; }
-
-/* ── Reset ───────────────────────────────────────────────────────── */
+/* ── Reset y Base ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body, #root { height: 100%; }
@@ -37,62 +25,109 @@ body {
   color: var(--text-color);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-/* ── Scrollbar ───────────────────────────────────────────────────── */
+/* ── Utilidades de Tipografía ───────────────────────────────────── */
+.font-serif { font-family: 'Fraunces', serif !important; }
+.font-mono  { font-family: 'DM Mono', monospace !important; }
+
+/* ── Scrollbars Globales ─────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--surface-d); border-radius: 99px; }
+::-webkit-scrollbar-thumb { 
+  background: rgba(255, 255, 255, 0.1); 
+  border-radius: 10px; 
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
 
-/* ── PrimeReact component overrides ─────────────────────────────── */
-/* The lara-dark-blue theme hardcodes colors — override to match our palette */
+/* ── Overrides de Componentes PrimeReact ───────────────────────── */
 
+/* Inputs y Selects */
 .p-inputtext,
 .p-password .p-inputtext,
-.p-calendar .p-inputtext,
-.p-inputnumber-input {
-  background: #1a1f2e !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+.p-dropdown,
+.p-inputtextarea,
+.p-calendar .p-inputtext {
+  background: var(--tt-bg-input) !important;
+  border: 1px solid var(--tt-border) !important;
   color: rgba(255, 255, 255, 0.87) !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.p-inputtext:enabled:hover,
-.p-password .p-inputtext:enabled:hover,
-.p-calendar:not(.p-disabled):hover .p-inputtext {
+.p-inputtext:enabled:hover, .p-dropdown:not(.p-disabled):hover {
   border-color: var(--primary-color) !important;
 }
 
-.p-inputtext:enabled:focus,
-.p-password .p-inputtext:enabled:focus {
+.p-inputtext:enabled:focus, .p-password .p-inputtext:enabled:focus {
   border-color: var(--primary-color) !important;
-  box-shadow: 0 0 0 0.15rem rgba(79, 143, 255, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(79, 143, 255, 0.2) !important;
 }
 
-.p-dropdown {
-  background: #1a1f2e !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+/* ── SOLUCIÓN: Menús y Popups Transparentes ──────────────────── */
+.p-menu.p-menu-overlay, 
+.p-dropdown-panel, 
+.p-overlaypanel {
+  background: #1a1f2e !important; /* Fondo sólido */
+  border: 1px solid var(--tt-border) !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+  backdrop-filter: blur(8px);
 }
 
-.p-dropdown:not(.p-disabled):hover {
-  border-color: var(--primary-color) !important;
+.p-menu .p-menuitem-link:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
 }
 
-.p-inputtextarea {
-  background: #1a1f2e !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+/* ── Password Component Fixes ────────────────────────────────── */
+.p-password { position: relative; display: inline-flex; width: 100%; }
+
+.p-password .p-inputtext { padding-right: 3rem !important; }
+
+.p-password-show-icon, 
+.p-password-hide-icon {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  margin-top: -8px; /* Centrado manual */
+  color: rgba(255, 255, 255, 0.4) !important;
+  cursor: pointer;
 }
 
-/* ── Entry animation ─────────────────────────────────────────────── */
+/* ── Layout & Navigation ──────────────────────────────────────── */
+.tt-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 240px;
+  z-index: 1100; /* Por encima de todo */
+}
+
+.tt-main { 
+  margin-left: 240px; 
+  min-height: 100vh;
+}
+
+@media (max-width: 767px) {
+  .tt-main { margin-left: 0; }
+}
+
+/* Animación de entrada */
+.animate-fade-up {
+  animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.animate-fade-up { animation: fade-up 0.35s ease both; }
 
-/* ── Shared table helpers ────────────────────────────────────────── */
-.tt-row-disabled { opacity: 0.45; }
+/* ── Helpers de Tabla ────────────────────────────────────────── */
+.p-datatable .p-datatable-tbody > tr {
+  background: transparent !important;
+  transition: background 0.2s;
+}
 
-.tt-confirm-danger {
-  background: var(--tt-red) !important;
-  border-color: var(--tt-red) !important;
+.p-datatable .p-datatable-tbody > tr:hover {
+  background: rgba(255, 255, 255, 0.02) !important;
 }

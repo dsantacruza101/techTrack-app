@@ -13,6 +13,18 @@ interface AlertPillProps {
   bg: string
 }
 
+const AlertBanner = ({ icon, label, count, color }: any) => (
+  <div 
+    className="flex align-items-center gap-2 px-3 py-2 border-round-lg border-1 w-full md:w-auto"
+    style={{ background: `${color}15`, borderColor: `${color}33` }}
+  >
+    <i className={`${icon} text-sm`} style={{ color }} />
+    <span className="text-xs font-semibold" style={{ color }}>
+      {count} {label}
+    </span>
+  </div>
+)
+
 const AlertPill = ({ icon, label, count, color, bg }: AlertPillProps) => (
   <div
     className="flex align-items-center gap-2 border-round-3xl px-3 py-2"

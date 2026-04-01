@@ -2,14 +2,11 @@ import { useRef, useState, useEffect } from 'react'
 import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
 import { Button } from 'primereact/button'
-import { Dialog } from 'primereact/dialog'
 import { Toast } from 'primereact/toast'
 import { Tag } from 'primereact/tag'
 import { Avatar } from 'primereact/avatar'
-import { InputText } from 'primereact/inputtext'
 import { Dropdown } from 'primereact/dropdown'
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'
-import { Message } from 'primereact/message'
 import { userService } from '../features/auth/services/userService'
 import { usePermissions } from '../features/auth/hooks/usePermissions'
 import { useAuth } from '../contexts/AuthContext'
@@ -33,15 +30,10 @@ const ROLE_LABEL: Record<Role, string> = {
   superAdmin: 'Super Admin',
 }
 
-const DEFAULT_INVITE = { displayName: '', email: '', role: 'user' as Role }
-
 const UsersPage = () => {
   const toast = useRef<Toast>(null)
-  const [users, setUsers]           = useState<UserProfile[]>([])
-  const [loading, setLoading]       = useState(true)
-  const [inviteOpen, setInviteOpen] = useState(false)
-  const [invite, setInvite]         = useState(DEFAULT_INVITE)
-  const [saving, setSaving]         = useState(false)
+  const [users, setUsers]   = useState<UserProfile[]>([])
+  const [loading, setLoading] = useState(true)
   const { can } = usePermissions()
   const { userProfile: me } = useAuth()
 
@@ -89,27 +81,6 @@ const UsersPage = () => {
   const handleRoleChange = async (u: UserProfile, role: Role) => {
     const ok = await userService.setRole(u.uid, role)
     if (!ok) notify('error', 'Error', 'Could not update role.')
-  }
-
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!invite.email.trim() || !invite.displayName.trim()) return
-    setSaving(true)
-    const ok = await userService.createInvite({
-      email: invite.email.trim(),
-      displayName: invite.displayName.trim(),
-      role: invite.role,
-      isActive: false,
-    })
-    setSaving(false)
-    if (ok) {
-      notify('success', 'Profile Created',
-        'User profile saved. Activate their account after they sign in via Google, or deploy the invite Cloud Function to send a link.')
-      setInviteOpen(false)
-      setInvite(DEFAULT_INVITE)
-    } else {
-      notify('error', 'Error', 'Something went wrong. Please try again.')
-    }
   }
 
   // ── Column templates ───────────────────────────────────────────
@@ -208,9 +179,6 @@ const UsersPage = () => {
             {users.length} user{users.length !== 1 ? 's' : ''} registered
           </p>
         </div>
-        {can('invite_users') && (
-          <Button label="Invite User" icon="pi pi-user-plus" onClick={() => setInviteOpen(true)} />
-        )}
       </div>
 
       {/* ── Table ───────────────────────────────────────────────── */}
@@ -228,68 +196,6 @@ const UsersPage = () => {
         <Column header=""       body={actionsTemplate} style={{ width: 100 }} align="right" />
       </DataTable>
 
-      {/* ── Invite dialog ───────────────────────────────────────── */}
-      <Dialog
-        visible={inviteOpen}
-        onHide={() => { setInviteOpen(false); setInvite(DEFAULT_INVITE) }}
-        header="Invite User"
-        style={{ width: '440px' }}
-        modal
-        draggable={false}
-        resizable={false}
-      >
-        <form onSubmit={handleInvite} className="flex flex-column gap-4">
-          <Message
-            severity="info"
-            text="A profile will be created in Firestore. To send an email invite, deploy the invite Cloud Function."
-          />
-
-          <div className="flex flex-column gap-2">
-            <label className="font-mono text-xs" style={{ letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-color-secondary)' }}>
-              Full Name
-            </label>
-            <InputText
-              value={invite.displayName}
-              onChange={e => setInvite(p => ({ ...p, displayName: e.target.value }))}
-              placeholder="Jane Smith"
-              className="w-full"
-              required
-              autoFocus
-            />
-          </div>
-
-          <div className="flex flex-column gap-2">
-            <label className="font-mono text-xs" style={{ letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-color-secondary)' }}>
-              Email Address
-            </label>
-            <InputText
-              value={invite.email}
-              onChange={e => setInvite(p => ({ ...p, email: e.target.value }))}
-              placeholder="jane@school.edu"
-              type="email"
-              className="w-full"
-              required
-            />
-          </div>
-
-          <div className="flex flex-column gap-2">
-            <label className="font-mono text-xs" style={{ letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-color-secondary)' }}>
-              Role
-            </label>
-            <Dropdown
-              value={invite.role}
-              options={can('change_roles') ? ROLE_OPTIONS : ROLE_OPTIONS.filter(o => o.value !== 'superAdmin')}
-              onChange={e => setInvite(p => ({ ...p, role: e.value }))}
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex gap-2 justify-content-end">
-            <Button type="button" label="Cancel" severity="secondary" outlined onClick={() => { setInviteOpen(false); setInvite(DEFAULT_INVITE) }} disabled={saving} />
-            <Button type="submit" label={saving ? '' : 'Create Profile'} icon={saving ? 'pi pi-spin pi-spinner' : 'pi pi-user-plus'} loading={saving} disabled={!invite.email.trim() || !invite.displayName.trim()} />
-          </div>
-        </form>
-      </Dialog>
     </div>
   )
 }

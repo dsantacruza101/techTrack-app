@@ -2,7 +2,7 @@ import {setGlobalOptions} from "firebase-functions";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 
-setGlobalOptions({maxInstances: 10});
+setGlobalOptions({maxInstances: 10, region: "us-central1"});
 
 admin.initializeApp();
 
@@ -12,7 +12,7 @@ admin.initializeApp();
  *
  * Only callable by authenticated admins / superAdmins.
  */
-export const inviteUser = onCall(async (request) => {
+export const inviteUser = onCall({cors: true}, async (request) => {
   // Require caller to be authenticated
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Must be signed in.");

@@ -8,56 +8,45 @@ export default function LoginPage() {
   } = useLogin()
 
   return (
-    <div
-      className="flex align-items-center justify-content-center p-4"
+    <div 
+      className="flex align-items-center justify-content-center min-h-screen p-4"
       style={{
-        minHeight: '100vh',
-        background: 'radial-gradient(ellipse 120% 80% at 50% -10%, rgba(79,143,255,0.07) 0%, transparent 60%), #0a0c10',
+        backgroundColor: '#0a0c10',
+        backgroundImage: `
+          radial-gradient(ellipse 80% 50% at 50% -10%, rgba(79,143,255,0.15) 0%, transparent 100%),
+          radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)
+        `,
+        backgroundSize: '100% 100%, 40px 40px', // El 40px define la separación de los puntos
       }}
     >
-      <div
-        className="animate-fade-up w-full"
-        style={{ maxWidth: '420px' }}
-      >
-        <div
-          className="p-5"
-          style={{
-            background: '#111318',
-            border: '1px solid rgba(79, 143, 255, 0.15)',
-            borderRadius: '20px',
-            boxShadow: '0 0 80px rgba(79,143,255,0.05), 0 32px 64px rgba(0,0,0,0.5)',
+      <div className="animate-fade-up w-full" style={{ maxWidth: '420px' }}>
+        <div 
+          className="surface-card p-5 border-round-3xl border-1" 
+          style={{ 
+            backgroundColor: '#0d1117', // Fondo ligeramente más claro que el principal
+            borderColor: 'rgba(255, 255, 255, 0.08)',
+            boxShadow: '0 24px 48px rgba(0,0,0,0.4)' 
           }}
         >
-          {/* Logo */}
+          {/* Logo y Header se mantienen igual... */}
           <div className="flex flex-column align-items-center mb-5">
-            <div
-              className="font-serif font-bold"
-              style={{ fontSize: '28px', letterSpacing: '-0.5px', color: 'rgba(255,255,255,0.9)' }}
-            >
+            <div className="font-serif font-bold text-3xl tracking-tight text-white-alpha-90">
               Tech<span style={{ color: 'var(--primary-color)' }}>Track</span>
             </div>
-            <div
-              className="font-mono mt-2"
-              style={{ fontSize: '9px', letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}
-            >
+            <div className="font-mono mt-1 text-xs uppercase tracking-widest text-white-alpha-30" style={{ fontSize: '9px' }}>
               Asset Management
             </div>
           </div>
 
-          {/* Header */}
-          <div className="flex flex-column align-items-center mb-4">
-            <h1
-              className="font-serif font-semibold m-0 mb-2"
-              style={{ fontSize: '22px', color: 'rgba(255,255,255,0.9)' }}
-            >
+          <div className="text-center mb-5">
+            <h1 className="font-serif font-semibold text-2xl m-0 mb-2 text-white-alpha-90">
               Welcome back
             </h1>
-            <p className="m-0 text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            <p className="m-0 text-sm text-white-alpha-40">
               Sign in to your account to continue
             </p>
           </div>
 
-          {/* Form */}
           <LoginForm
             email={email}
             password={password}
@@ -70,8 +59,7 @@ export default function LoginPage() {
             onGoogleLogin={handleGoogleLogin}
           />
 
-          {/* Footer */}
-          <p className="text-center text-xs mt-4 m-0" style={{ color: 'rgba(255,255,255,0.2)' }}>
+          <p className="text-center text-xs mt-5 m-0 text-white-alpha-20">
             Contact your administrator if you need access.
           </p>
         </div>

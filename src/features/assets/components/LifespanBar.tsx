@@ -14,17 +14,28 @@ const COLOR: Record<string, string> = {
 }
 
 const LifespanBar = ({ purchaseDate, lifespanYears }: LifespanBarProps) => {
-  const pct    = getLifespanPercent(purchaseDate, lifespanYears)
-  const status = getLifespanStatus(purchaseDate, lifespanYears)
-  const value  = Math.round(pct * 100)
+  const pct = getLifespanPercent(purchaseDate, lifespanYears)
+  const value = Math.round(pct * 100)
+  
+  // Determinamos el color según el mockup: Verde -> Naranja -> Rojo
+  const getBarColor = () => {
+    if (value >= 90) return '#ef4444' // Rojo crítico
+    if (value >= 70) return '#f59e0b' // Naranja/Aging
+    return '#22c55e' // Verde saludable
+  }
 
   return (
     <ProgressBar
       value={value}
       showValue={false}
-      style={{ height: 6, borderRadius: 99 }}
+      style={{ height: 4, background: 'var(--surface-border)' }}
       pt={{
-        value: { style: { background: COLOR[status], borderRadius: 99 } },
+        value: { 
+          style: { 
+            background: getBarColor(), 
+            boxShadow: `0 0 8px ${getBarColor()}66` // Efecto glow sutil
+          } 
+        }
       }}
     />
   )

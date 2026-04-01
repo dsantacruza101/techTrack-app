@@ -13,27 +13,20 @@ interface MetricCardProps {
   iconBg: string
 }
 
-const MetricCard = ({ label, value, icon, iconColor, iconBg }: MetricCardProps) => (
+const MetricCard = ({ label, value, icon, iconColor }: MetricCardProps) => (
   <div
-    className="flex align-items-center gap-3 border-round-xl p-3 flex-1"
+    className="flex flex-column gap-3 border-round-xl p-3 flex-1 relative overflow-hidden"
     style={{ background: 'var(--surface-card)', border: '1px solid var(--surface-border)' }}
   >
-    <div
-      className="flex align-items-center justify-content-center border-round-lg flex-shrink-0"
-      style={{ width: 40, height: 40, background: iconBg, color: iconColor, fontSize: 18 }}
-    >
-      <i className={icon} />
-    </div>
-    <div>
-      <div
-        className="font-serif font-semibold"
-        style={{ fontSize: '22px', lineHeight: 1, color: 'var(--text-color)' }}
-      >
-        {value}
+    {/* La línea de acento superior del mockup */}
+    <div className="absolute top-0 left-0 w-full h-2px" style={{ background: iconColor }} />
+    
+    <div className="flex justify-content-between align-items-start">
+      <div>
+        <div className="text-4xl font-bold text-900 line-height-1">{value}</div>
+        <div className="text-xs font-medium uppercase tracking-wider mt-2 text-500">{label}</div>
       </div>
-      <div className="text-xs mt-1" style={{ color: 'var(--text-color-secondary)' }}>
-        {label}
-      </div>
+      <i className={`${icon} text-xl opacity-50`} style={{ color: iconColor }} />
     </div>
   </div>
 )

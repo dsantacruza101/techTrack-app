@@ -9,39 +9,36 @@ const AppLayout = () => {
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'var(--surface-ground)' }}>
-
-      {/* ── Desktop sidebar ─────────────────────────────────────── */}
-      <aside
-        className="tt-sidebar hidden md:flex flex-column"
-        style={{ background: 'var(--surface-card)', borderRight: '1px solid var(--surface-border)' }}
-      >
+    <div className="flex min-h-screen surface-ground">
+      {/* Sidebar Escritorio */}
+      <aside className="tt-sidebar hidden md:flex flex-column surface-card border-right-1 border-white-alpha-10">
         <Sidebar />
       </aside>
 
-      {/* ── Mobile drawer ───────────────────────────────────────── */}
+      {/* Drawer Móvil */}
       <PrimeDrawer
         visible={drawerOpen}
         onHide={() => setDrawerOpen(false)}
         position="left"
-        className="tt-mobile-drawer"
+        className="tt-mobile-drawer border-none"
         pt={{
-          root:    { style: { width: '240px', background: 'var(--surface-card)', border: 'none' } },
-          header:  { style: { display: 'none' } },
-          content: { style: { padding: 0, height: '100%' } },
+          root: { className: 'w-15rem surface-card border-none' },
+          header: { className: 'hidden' },
+          content: { className: 'p-0 h-full' },
         }}
       >
         <Sidebar onNavClick={() => setDrawerOpen(false)} />
       </PrimeDrawer>
 
-      {/* ── Main area ───────────────────────────────────────────── */}
+      {/* Área Principal */}
       <div className="tt-main flex flex-column flex-1 min-h-screen">
         <Topbar onMenuToggle={() => setDrawerOpen(true)} />
-        <main className="flex-1 p-4">
-          <Outlet />
+        <main className="p-4 md:p-6 lg:p-8"> {/* Padding responsivo */}
+          <div className="mx-auto" style={{ maxWidth: '1400px' }}> {/* Contenedor de ancho máximo */}
+             <Outlet />
+          </div>
         </main>
       </div>
-
     </div>
   )
 }

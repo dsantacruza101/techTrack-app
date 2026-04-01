@@ -10,22 +10,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--tt-surface2);
-  border: 1px solid var(--tt-border2);
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
   border-radius: 8px;
-  color: var(--tt-text-dim);
+  color: var(--text-color-secondary);
   font-size: 16px;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .tt-icon-option:hover {
-  border-color: var(--tt-accent);
-  color: var(--tt-text);
+  border-color: var(--primary-color);
+  color: var(--text-color);
 }
 
 .tt-icon-option.selected {
-  background: rgba(79, 143, 255, 0.15);
-  border-color: var(--tt-accent);
-  color: var(--tt-accent);
+  background: var(--highlight-bg);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }

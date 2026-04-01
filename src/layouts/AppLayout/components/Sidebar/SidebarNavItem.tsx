@@ -12,9 +12,7 @@ interface SidebarNavItemProps {
 
 const SidebarNavItem = ({ label, icon, to, paramKey, paramValue, badge, onClick }: SidebarNavItemProps) => {
   const [searchParams] = useSearchParams()
-
-  const isParamActive =
-    paramKey && paramValue ? searchParams.get(paramKey) === paramValue : false
+  const isParamActive = paramKey && paramValue ? searchParams.get(paramKey) === paramValue : false
 
   return (
     <NavLink
@@ -22,16 +20,17 @@ const SidebarNavItem = ({ label, icon, to, paramKey, paramValue, badge, onClick 
       onClick={onClick}
       className={({ isActive }) => {
         const active = paramKey ? isParamActive : isActive
-        return `tt-nav-item flex align-items-center gap-2 px-3 py-2 border-round-lg${active ? ' active' : ''}`
+        return `tt-nav-item flex align-items-center gap-3 px-3 py-2 border-round-lg transition-colors transition-duration-150 ${
+          active ? 'bg-blue-900-alpha-10 text-primary font-medium' : 'text-500 hover:surface-hover hover:text-900'
+        }`
       }}
     >
-      <i className={`${icon} text-sm flex-shrink-0`} style={{ width: '16px', textAlign: 'center' }} />
+      <i className={`${icon} text-sm`} />
       <span className="flex-1 text-sm">{label}</span>
       {badge !== undefined && (
-        <span
-          className="tt-nav-badge font-mono text-xs px-2 py-1 border-round-xl"
-          style={{ background: 'var(--surface-c)', border: '1px solid var(--surface-d)' }}
-        >
+        <span className={`font-mono text-xs px-2 py-1 border-round-xl border-1 ${
+          isParamActive ? 'border-blue-500-alpha-30 bg-blue-900-alpha-20' : 'border-white-alpha-10 bg-white-alpha-5'
+        }`}>
           {badge}
         </span>
       )}

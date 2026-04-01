@@ -24,11 +24,10 @@ const Topbar = ({ onMenuToggle }: TopbarProps) => {
         icon="pi pi-bars"
         text
         severity="secondary"
-        className="md:hidden"
+        className="md:hidden p-button-sm"
         onClick={onMenuToggle}
-        aria-label="Toggle menu"
       />
-      <h1 className="font-serif m-0 text-xl font-semibold" style={{ color: 'var(--text-color)' }}>
+      <h1 className="font-serif m-0 text-xl font-semibold text-900">
         {title}
       </h1>
     </div>
@@ -38,20 +37,8 @@ const Topbar = ({ onMenuToggle }: TopbarProps) => {
     <Toolbar
       start={start}
       end={<UserMenu />}
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        borderRadius: 0,
-        borderLeft: 'none',
-        borderRight: 'none',
-        borderTop: 'none',
-        borderBottom: '1px solid var(--surface-border)',
-        background: 'var(--surface-card)',
-        padding: '0 1.5rem',
-        height: '60px',
-        flexShrink: 0,
-      }}
+      className="sticky top-0 z-5 surface-card border-none border-bottom-1 border-white-alpha-10 px-4 h-4rem"
+      style={{ borderRadius: 0 }}
     />
   )
 }
