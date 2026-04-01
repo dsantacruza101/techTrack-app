@@ -3,12 +3,10 @@ import { Menu } from 'primereact/menu'
 import { Avatar } from 'primereact/avatar'
 import type { MenuItem } from 'primereact/menuitem'
 import { useAuth } from '../../../../contexts/AuthContext'
-import { useNavigate } from 'react-router-dom'
 
 const UserMenu = () => {
   const menuRef = useRef<Menu>(null)
   const { userProfile, role, logout } = useAuth()
-  const navigate = useNavigate()
 
   const initials = userProfile?.displayName
     ? userProfile.displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -27,12 +25,7 @@ const UserMenu = () => {
         </div>
       ),
     },
-    { 
-      label: 'My Profile', 
-      icon: 'pi pi-user', 
-      command: () => navigate('/profile') 
-    },
-    { 
+    {
       label: 'Sign out', 
       icon: 'pi pi-sign-out', 
       template: () => (

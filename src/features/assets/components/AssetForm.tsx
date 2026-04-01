@@ -30,6 +30,7 @@ const DEFAULT: AssetFormData = {
   purchasePrice: 0,
   lifespanYears: 3,
   assignedTo:    '',
+  location:      '',
   notes:         '',
 }
 
@@ -58,6 +59,7 @@ const AssetForm = ({ initial, categories, saving, onSave, onCancel }: AssetFormP
       purchasePrice: initial.purchasePrice,
       lifespanYears: initial.lifespanYears,
       assignedTo:    initial.assignedTo,
+      location:      initial.location,
       notes:         initial.notes,
     } : DEFAULT)
   }, [initial])
@@ -136,9 +138,15 @@ const AssetForm = ({ initial, categories, saving, onSave, onCancel }: AssetFormP
         <InputNumber value={form.lifespanYears} onValueChange={(e) => set('lifespanYears', e.value ?? 1)} min={1} max={20} showButtons className="w-full" />
       </div>
 
-      <div className="flex flex-column gap-2">
-        <FieldLabel>Assigned To</FieldLabel>
-        <InputText value={form.assignedTo} onChange={(e) => set('assignedTo', e.target.value)} placeholder="Room 101 / John Doe" className="w-full" />
+      <div className="grid">
+        <div className="col-6 flex flex-column gap-2">
+          <FieldLabel>Assigned To</FieldLabel>
+          <InputText value={form.assignedTo} onChange={(e) => set('assignedTo', e.target.value)} placeholder="Name or dept." className="w-full" />
+        </div>
+        <div className="col-6 flex flex-column gap-2">
+          <FieldLabel>Location / Room</FieldLabel>
+          <InputText value={form.location} onChange={(e) => set('location', e.target.value)} placeholder="e.g. Room 204" className="w-full" />
+        </div>
       </div>
 
       <div className="flex flex-column gap-2">

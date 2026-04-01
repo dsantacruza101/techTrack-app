@@ -131,7 +131,7 @@ const AssetsPage = () => {
     const escape      = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
 
     const headers = ['Name', 'Brand', 'Model', 'Category', 'Status', 'Serial Number', 'Asset Tag',
-                     'Assigned To', 'Purchase Date', 'Purchase Price', 'Lifespan (yrs)', 'Notes']
+                     'Assigned To', 'Location', 'Purchase Date', 'Purchase Price', 'Lifespan (yrs)', 'Notes']
 
     const rows = visibleAssets.map((a) => [
       escape(a.name),
@@ -142,6 +142,7 @@ const AssetsPage = () => {
       escape(a.serialNumber),
       escape(a.assetTag),
       escape(a.assignedTo),
+      escape(a.location),
       escape(formatDate(a.purchaseDate)),
       escape(a.purchasePrice),
       escape(a.lifespanYears),
@@ -187,6 +188,16 @@ const AssetsPage = () => {
     return cat
       ? <span className="text-sm">{cat.name}</span>
       : <span className="text-sm" style={{ opacity: 0.4 }}>—</span>
+  }
+
+  const replaceByTemplate = (row: Asset) => {
+    const replaceDate = new Date(row.purchaseDate.toDate())
+    replaceDate.setFullYear(replaceDate.getFullYear() + row.lifespanYears)
+    return (
+      <span className="text-sm font-mono">
+        {replaceDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+      </span>
+    )
   }
 
   const lifespanTemplate = (row: Asset) => {
@@ -313,10 +324,13 @@ const AssetsPage = () => {
         showGridlines={false}
         style={{ borderRadius: '12px', overflow: 'hidden' }}
       >
-        <Column header="Asset"    body={nameTemplate}     style={{ minWidth: 240 }} />
-        <Column header="Category" body={categoryTemplate} style={{ minWidth: 120 }} />
-        <Column field="assetTag"  header="Tag"            style={{ width: 100 }} />
-        <Column header="Lifespan" body={lifespanTemplate} style={{ minWidth: 160 }} />
+        <Column header="Asset"       body={nameTemplate}      style={{ minWidth: 240 }} />
+        <Column header="Category"    body={categoryTemplate}  style={{ minWidth: 120 }} />
+        <Column field="assignedTo"   header="Assigned To"     style={{ minWidth: 140 }} body={(row: Asset) => row.assignedTo ? <span className="text-sm">{row.assignedTo}</span> : <span className="text-sm" style={{ opacity: 0.4 }}>—</span>} />
+        <Column field="location"     header="Location"        style={{ minWidth: 130 }} body={(row: Asset) => row.location ? <span className="text-sm">{row.location}</span> : <span className="text-sm" style={{ opacity: 0.4 }}>—</span>} />
+        <Column field="assetTag"     header="Tag"             style={{ width: 100 }} />
+        <Column header="Lifespan"   body={lifespanTemplate}   style={{ minWidth: 160 }} />
+        <Column header="Replace By" body={replaceByTemplate} style={{ minWidth: 140 }} />
         <Column header=""         body={actionsTemplate}  style={{ width: 130 }} align="right" />
       </DataTable>
 

@@ -22,6 +22,7 @@ export interface Asset {
   purchasePrice: number
   lifespanYears: number
   assignedTo: string
+  location: string
   notes: string
   isDeleted: boolean
   createdAt: Timestamp
