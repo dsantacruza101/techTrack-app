@@ -1,17 +1,17 @@
 import { ProgressBar } from 'primereact/progressbar'
 import type { Timestamp } from 'firebase/firestore'
-import { getLifespanPercent, getLifespanStatus } from '../types/asset.types'
+import { getLifespanPercent } from '../types/asset.types'
 
 interface LifespanBarProps {
   purchaseDate: Timestamp
   lifespanYears: number
 }
 
-const COLOR: Record<string, string> = {
-  good:    'var(--green-500)',
-  aging:   'var(--yellow-500)',
-  replace: 'var(--red-500)',
-}
+// const COLOR: Record<string, string> = {
+//   good:    'var(--green-500)',
+//   aging:   'var(--yellow-500)',
+//   replace: 'var(--red-500)',
+// }
 
 const LifespanBar = ({ purchaseDate, lifespanYears }: LifespanBarProps) => {
   const pct = getLifespanPercent(purchaseDate, lifespanYears)

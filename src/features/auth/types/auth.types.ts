@@ -22,6 +22,15 @@ export interface UserProfile {
   permissions: Permission[]
 }
 
+/** A user registered by an admin but who has not yet signed in with Google. */
+export interface PendingUser {
+  id: string
+  email: string
+  displayName: string
+  role: Role
+  createdAt: number
+}
+
 export class AccountDisabledError extends Error {
   constructor() {
     super('This account has been disabled. Contact your administrator.')

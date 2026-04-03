@@ -33,6 +33,13 @@ service cloud.firestore {
       allow create, update, delete: if isAdminOrSuperAdmin();
     }
 
+    // pendingUsers: admins/superAdmins write; any authenticated user can read
+    // (needed so onAuthStateChanged can query by email before users/{uid} exists)
+    match /pendingUsers/{docId} {
+      allow read:                    if isAuthenticated();
+      allow create, update, delete:  if isAdminOrSuperAdmin();
+    }
+
     // Deny everything else
     match /{document=**} {
       allow read, write: if false;

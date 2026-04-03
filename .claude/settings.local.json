@@ -8,7 +8,10 @@
       "Bash(firebase projects:list)",
       "Bash(npm run:*)",
       "Bash(npm show:*)",
-      "Bash(find /Users/danielsantacruz/Documents/React/techtrack-app/src/features/assets -type f -name *.ts -o -name *.tsx -o -name *.js -o -name *.jsx)"
+      "Bash(find /Users/danielsantacruz/Documents/React/techtrack-app/src/features/assets -type f -name *.ts -o -name *.tsx -o -name *.js -o -name *.jsx)",
+      "Bash(firebase deploy:*)",
+      "Bash(xargs cat:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }

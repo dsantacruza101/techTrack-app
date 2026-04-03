@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { User } from 'firebase/auth'
 import { authService } from '../features/auth/services/authService'
+import { userService } from '../features/auth/services/userService'
 import type { Role, UserProfile } from '../features/auth/types/auth.types'
 
 interface AuthContextValue {
@@ -16,10 +17,6 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-/**
- * Provides auth state to the whole app.
- * Depends on authService abstraction, not on Firebase directly. (DIP)
- */
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
@@ -34,17 +31,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return
       }
 
-      const profile = await authService.getUserProfile(user.uid)
+      // Hold the loading spinner while we fetch/promote the profile.
+      // Without this, interactive sign-in briefly shows loading=false + no profile,
+      // causing ProtectedRoute to redirect back to /login.
+      setLoading(true)
 
-      // Unregistered Google user — delete Auth record immediately.
-      // Cloud Function blockUnregisteredGoogleUsers acts as server-side backup.
+      let profile = await authService.getUserProfile(user.uid)
+
       if (!profile) {
-        await user.delete()
-        return
+        // First Google sign-in: check if an admin pre-registered this email
+        const pending = user.email
+          ? await userService.findPendingByEmail(user.email)
+          : null
+
+        if (pending) {
+          profile = await userService.promotePendingUser(user.uid, pending, user.displayName)
+        }
+
+        if (!profile) {
+          await user.delete()
+          setLoading(false)
+          return
+        }
       }
 
-      // If an admin disables the user while they have an active session,
-      // sign them out so they lose access on next auth state refresh.
       if (profile.isActive === false) {
         await authService.logout()
         return

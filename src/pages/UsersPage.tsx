@@ -6,11 +6,13 @@ import { Toast } from 'primereact/toast'
 import { Tag } from 'primereact/tag'
 import { Avatar } from 'primereact/avatar'
 import { Dropdown } from 'primereact/dropdown'
+import { Dialog } from 'primereact/dialog'
+import { InputText } from 'primereact/inputtext'
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'
 import { userService } from '../features/auth/services/userService'
 import { usePermissions } from '../features/auth/hooks/usePermissions'
 import { useAuth } from '../contexts/AuthContext'
-import type { UserProfile, Role } from '../features/auth/types/auth.types'
+import type { UserProfile, PendingUser, Role } from '../features/auth/types/auth.types'
 
 const ROLE_OPTIONS: { label: string; value: Role }[] = [
   { label: 'User',       value: 'user' },
@@ -30,19 +32,33 @@ const ROLE_LABEL: Record<Role, string> = {
   superAdmin: 'Super Admin',
 }
 
+type TableRow = (UserProfile & { _pending: false }) | (PendingUser & { _pending: true })
+
+const EMPTY_FORM = { displayName: '', email: '', role: 'user' as Role }
+
 const UsersPage = () => {
   const toast = useRef<Toast>(null)
-  const [users, setUsers]   = useState<UserProfile[]>([])
+  const [users, setUsers]     = useState<UserProfile[]>([])
+  const [pending, setPending] = useState<PendingUser[]>([])
   const [loading, setLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [form, setForm]       = useState(EMPTY_FORM)
+  const [saving, setSaving]   = useState(false)
   const { can } = usePermissions()
   const { userProfile: me } = useAuth()
 
   useEffect(() => {
-    const unsub = userService.subscribeToAll((data) => {
-      setUsers(data)
-      setLoading(false)
+    let activeLoaded  = false
+    let pendingLoaded = false
+    const checkDone = () => { if (activeLoaded && pendingLoaded) setLoading(false) }
+
+    const unsubActive  = userService.subscribeToAll((data) => {
+      setUsers(data); activeLoaded = true; checkDone()
     })
-    return unsub
+    const unsubPending = userService.subscribeToPending((data) => {
+      setPending(data); pendingLoaded = true; checkDone()
+    })
+    return () => { unsubActive(); unsubPending() }
   }, [])
 
   const notify = (severity: 'success' | 'error', summary: string, detail: string) =>
@@ -78,16 +94,49 @@ const UsersPage = () => {
       },
     })
 
+  const handleDeletePending = (p: PendingUser) =>
+    confirmDialog({
+      message: `Cancel registration for ${p.displayName || p.email}?`,
+      header: 'Cancel Registration',
+      icon: 'pi pi-exclamation-triangle',
+      acceptClassName: 'tt-confirm-danger',
+      accept: async () => {
+        const ok = await userService.removePending(p.id)
+        notify(ok ? 'success' : 'error', ok ? 'Cancelled' : 'Error',
+          ok ? 'Registration cancelled.' : 'Something went wrong.')
+      },
+    })
+
   const handleRoleChange = async (u: UserProfile, role: Role) => {
     const ok = await userService.setRole(u.uid, role)
     if (!ok) notify('error', 'Error', 'Could not update role.')
   }
 
+  const handleAddUser = async () => {
+    setSaving(true)
+    const ok = await userService.registerByEmail(form)
+    setSaving(false)
+    if (ok) {
+      notify('success', 'Registered', `${form.displayName || form.email} can now sign in with Google.`)
+      setDialogOpen(false)
+      setForm(EMPTY_FORM)
+    } else {
+      notify('error', 'Error', 'Could not register user.')
+    }
+  }
+
+  // admins cannot act on superAdmin accounts; only superAdmins can
+  const canActOn = (target: UserProfile) => {
+    if (target.uid === me?.uid) return false
+    if (me?.role === 'admin' && target.role === 'superAdmin') return false
+    return true
+  }
+
   // ── Column templates ───────────────────────────────────────────
-  const userTemplate = (u: UserProfile) => {
-    const initials = u.displayName
-      ? u.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-      : u.email[0]?.toUpperCase() ?? '?'
+  const userTemplate = (row: TableRow) => {
+    const initials = row.displayName
+      ? row.displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+      : row.email[0]?.toUpperCase() ?? '?'
 
     return (
       <div className="flex align-items-center gap-3">
@@ -104,16 +153,20 @@ const UsersPage = () => {
         />
         <div>
           <div className="font-medium text-sm" style={{ color: 'var(--text-color)' }}>
-            {u.displayName || '—'}
+            {row.displayName || '—'}
           </div>
-          <div className="text-xs mt-1" style={{ color: 'var(--text-color-secondary)' }}>{u.email}</div>
+          <div className="text-xs mt-1" style={{ color: 'var(--text-color-secondary)' }}>{row.email}</div>
         </div>
       </div>
     )
   }
 
-  const roleTemplate = (u: UserProfile) => {
-    if (can('change_roles') && u.uid !== me?.uid) {
+  const roleTemplate = (row: TableRow) => {
+    if (row._pending) {
+      return <Tag value={ROLE_LABEL[row.role]} severity={ROLE_SEVERITY[row.role]} rounded />
+    }
+    const u = row as UserProfile
+    if (can('change_roles') && canActOn(u)) {
       return (
         <Dropdown
           value={u.role}
@@ -126,19 +179,42 @@ const UsersPage = () => {
     return <Tag value={ROLE_LABEL[u.role]} severity={ROLE_SEVERITY[u.role]} rounded />
   }
 
-  const statusTemplate = (u: UserProfile) => (
-    <Tag
-      value={u.isActive ? 'Active' : 'Disabled'}
-      severity={u.isActive ? 'success' : 'secondary'}
-      rounded
-    />
-  )
+  const statusTemplate = (row: TableRow) => {
+    if (row._pending) return <Tag value="Pending" severity="warning" rounded />
+    const u = row as UserProfile
+    return (
+      <Tag
+        value={u.isActive ? 'Active' : 'Disabled'}
+        severity={u.isActive ? 'success' : 'secondary'}
+        rounded
+      />
+    )
+  }
 
-  const actionsTemplate = (u: UserProfile) => {
-    const isSelf = u.uid === me?.uid
+  const actionsTemplate = (row: TableRow) => {
+    if (row._pending) {
+      return (
+        <div className="flex gap-1 justify-content-end">
+          {can('invite_users') && (
+            <Button
+              icon="pi pi-times"
+              size="small"
+              severity="danger"
+              text
+              rounded
+              tooltip="Cancel Registration"
+              tooltipOptions={{ position: 'top' }}
+              onClick={() => handleDeletePending(row as PendingUser)}
+            />
+          )}
+        </div>
+      )
+    }
+
+    const u = row as UserProfile
     return (
       <div className="flex gap-1 justify-content-end">
-        {can('disable_users') && !isSelf && (
+        {can('disable_users') && canActOn(u) && (
           <Button
             icon={u.isActive ? 'pi pi-ban' : 'pi pi-check'}
             size="small"
@@ -150,7 +226,7 @@ const UsersPage = () => {
             onClick={() => handleToggleActive(u)}
           />
         )}
-        {can('delete_users') && !isSelf && (
+        {can('delete_users') && canActOn(u) && (
           <Button
             icon="pi pi-trash"
             size="small"
@@ -166,6 +242,11 @@ const UsersPage = () => {
     )
   }
 
+  const rows: TableRow[] = [
+    ...users.map(u => ({ ...u, _pending: false as const })),
+    ...pending.map(p => ({ ...p, _pending: true as const })),
+  ]
+
   return (
     <div className="flex flex-column gap-4">
       <Toast ref={toast} position="top-right" />
@@ -177,13 +258,22 @@ const UsersPage = () => {
           <h2 className="font-serif text-xl font-semibold m-0">Users</h2>
           <p className="text-sm mt-1 m-0" style={{ color: 'var(--text-color-secondary)' }}>
             {users.length} user{users.length !== 1 ? 's' : ''} registered
+            {pending.length > 0 && ` · ${pending.length} pending`}
           </p>
         </div>
+        {can('invite_users') && (
+          <Button
+            label="Add User"
+            icon="pi pi-user-plus"
+            size="small"
+            onClick={() => setDialogOpen(true)}
+          />
+        )}
       </div>
 
       {/* ── Table ───────────────────────────────────────────────── */}
       <DataTable
-        value={users}
+        value={rows}
         loading={loading}
         emptyMessage="No users found."
         stripedRows
@@ -196,6 +286,61 @@ const UsersPage = () => {
         <Column header=""       body={actionsTemplate} style={{ width: 100 }} align="right" />
       </DataTable>
 
+      {/* ── Add User Dialog ─────────────────────────────────────── */}
+      <Dialog
+        header="Add User"
+        visible={dialogOpen}
+        style={{ width: '400px' }}
+        onHide={() => { setDialogOpen(false); setForm(EMPTY_FORM) }}
+        footer={
+          <div className="flex justify-content-end gap-2">
+            <Button
+              label="Cancel"
+              severity="secondary"
+              text
+              onClick={() => { setDialogOpen(false); setForm(EMPTY_FORM) }}
+            />
+            <Button
+              label="Add User"
+              icon="pi pi-check"
+              loading={saving}
+              disabled={!form.displayName.trim() || !form.email.trim()}
+              onClick={handleAddUser}
+            />
+          </div>
+        }
+      >
+        <div className="flex flex-column gap-3 pt-2">
+          <div className="flex flex-column gap-1">
+            <label className="text-sm font-medium">Full Name</label>
+            <InputText
+              value={form.displayName}
+              onChange={(e) => setForm(f => ({ ...f, displayName: e.target.value }))}
+              placeholder="Jane Doe"
+            />
+          </div>
+          <div className="flex flex-column gap-1">
+            <label className="text-sm font-medium">Google Email</label>
+            <InputText
+              value={form.email}
+              onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
+              placeholder="jane@gmail.com"
+              keyfilter="email"
+            />
+          </div>
+          <div className="flex flex-column gap-1">
+            <label className="text-sm font-medium">Role</label>
+            <Dropdown
+              value={form.role}
+              options={can('create_super_admin') ? ROLE_OPTIONS : ROLE_OPTIONS.filter(o => o.value !== 'superAdmin')}
+              onChange={(e) => setForm(f => ({ ...f, role: e.value }))}
+            />
+          </div>
+          <p className="text-xs m-0" style={{ color: 'var(--text-color-secondary)' }}>
+            The user will be able to sign in with their Google account once registered.
+          </p>
+        </div>
+      </Dialog>
     </div>
   )
 }
