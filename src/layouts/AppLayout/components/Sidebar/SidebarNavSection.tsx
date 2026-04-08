@@ -3,10 +3,11 @@ interface SidebarNavSectionProps {
 }
 
 const SidebarNavSection = ({ label }: SidebarNavSectionProps) => (
-  <div
-    className="font-mono text-xs px-3 pt-3 pb-1"
-    style={{ letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-color-secondary)', opacity: 0.5 }}
-  >
+  <div style={{
+    fontFamily: 'DM Mono, monospace', fontSize: 9, letterSpacing: '2.5px',
+    textTransform: 'uppercase', color: 'rgba(255,255,255,0.22)',
+    padding: '14px 10px 5px', fontWeight: 500,
+  }}>
     {label}
   </div>
 )

@@ -13,7 +13,7 @@ interface CategoryFormProps {
   onCancel: () => void
 }
 
-const DEFAULT: CategoryFormData = { name: '', icon: 'pi pi-box', colorKey: 'blue' }
+const DEFAULT: CategoryFormData = { name: '', icon: 'pi pi-box', colorKey: 'blue', subcategories: [], careTasks: [] }
 
 const FieldLabel = ({ children }: { children: React.ReactNode }) => (
   <label
@@ -30,13 +30,13 @@ const CategoryForm = ({ initial, saving, onSave, onCancel }: CategoryFormProps) 
   const [form, setForm] = useState<CategoryFormData>(DEFAULT)
 
   useEffect(() => {
-    setForm(initial ? { name: initial.name, icon: initial.icon, colorKey: initial.colorKey } : DEFAULT)
+    setForm(initial ? { name: initial.name, icon: initial.icon, colorKey: initial.colorKey, subcategories: initial.subcategories ?? [], careTasks: initial.careTasks ?? [] } : DEFAULT)
   }, [initial])
 
   const set = <K extends keyof CategoryFormData>(key: K, val: CategoryFormData[K]) =>
     setForm((prev) => ({ ...prev, [key]: val }))
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: { preventDefault(): void }) => {
     e.preventDefault()
     if (!form.name.trim()) return
     onSave(form)

@@ -1,10 +1,4 @@
 import { useState, useEffect } from 'react'
-import { InputText } from 'primereact/inputtext'
-import { InputNumber } from 'primereact/inputnumber'
-import { Dropdown } from 'primereact/dropdown'
-import { Calendar } from 'primereact/calendar'
-import { InputTextarea } from 'primereact/inputtextarea'
-import { Button } from 'primereact/button'
 import { Timestamp } from 'firebase/firestore'
 import type { Category } from '../../categories/types/category.types'
 import type { Asset, AssetFormData } from '../types/asset.types'
@@ -13,150 +7,357 @@ import { ASSET_STATUS_OPTIONS } from '../types/asset.types'
 interface AssetFormProps {
   initial?: Asset
   categories: Category[]
+  schoolAName?: string
+  schoolBName?: string
   saving: boolean
   onSave: (data: AssetFormData) => void
   onCancel: () => void
 }
 
 const DEFAULT: AssetFormData = {
-  name:          '',
-  brand:         '',
-  model:         '',
-  categoryId:    '',
-  status:        'active',
-  serialNumber:  '',
-  assetTag:      '',
-  purchaseDate:  Timestamp.fromDate(new Date()),
-  purchasePrice: 0,
-  lifespanYears: 3,
-  assignedTo:    '',
-  location:      '',
-  notes:         '',
+  name:           '',
+  brand:          '',
+  model:          '',
+  categoryId:     '',
+  subcategoryId:  '',
+  school:         'school_a',
+  status:         'active',
+  serialNumber:   '',
+  assetTag:       '',
+  purchaseDate:   Timestamp.fromDate(new Date()),
+  purchasePrice:  0,
+  estimatedValue: 0,
+  lifespanYears:  5,
+  warrantyExpiry: null,
+  assignedTo:     '',
+  location:       '',
+  notes:          '',
 }
 
-const FieldLabel = ({ children }: { children: React.ReactNode }) => (
-  <label
-    className="font-mono text-xs"
-    style={{ letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-color-secondary)' }}
-  >
-    {children}
-  </label>
-)
+// ── Shared input styles ──────────────────────────────────────────────────────
+const S = {
+  label: {
+    display: 'block',
+    fontFamily: 'DM Mono, monospace',
+    fontSize: 10,
+    fontWeight: 600,
+    letterSpacing: '2px',
+    textTransform: 'uppercase' as const,
+    color: 'rgba(255,255,255,0.38)',
+    marginBottom: 6,
+  },
+  input: {
+    width: '100%',
+    background: 'var(--surface-section)',
+    border: '1px solid rgba(255,255,255,0.09)',
+    borderRadius: 9,
+    padding: '10px 13px',
+    color: 'var(--text-color)',
+    fontFamily: 'inherit',
+    fontSize: 13,
+    outline: 'none',
+    boxSizing: 'border-box' as const,
+    transition: 'border-color 0.15s',
+  },
+  select: {
+    width: '100%',
+    background: 'var(--surface-section)',
+    border: '1px solid rgba(255,255,255,0.09)',
+    borderRadius: 9,
+    padding: '10px 13px',
+    color: 'var(--text-color)',
+    fontFamily: 'inherit',
+    fontSize: 13,
+    outline: 'none',
+    boxSizing: 'border-box' as const,
+    appearance: 'auto' as const,
+    cursor: 'pointer',
+  },
+  date: {
+    width: '100%',
+    background: 'var(--surface-section)',
+    border: '1px solid rgba(255,255,255,0.09)',
+    borderRadius: 9,
+    padding: '10px 13px',
+    color: 'var(--text-color)',
+    fontFamily: 'inherit',
+    fontSize: 13,
+    outline: 'none',
+    boxSizing: 'border-box' as const,
+    colorScheme: 'dark' as const,
+  },
+  row: {
+    display: 'grid' as const,
+    gridTemplateColumns: '1fr 1fr',
+    gap: 16,
+  },
+  field: {
+    display: 'flex' as const,
+    flexDirection: 'column' as const,
+  },
+}
 
-const AssetForm = ({ initial, categories, saving, onSave, onCancel }: AssetFormProps) => {
+const toDateInput = (ts: Timestamp) => {
+  const d = ts.toDate()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+const fromDateInput = (v: string): Timestamp | null => {
+  if (!v) return null
+  const d = new Date(v + 'T00:00:00')
+  return isNaN(d.getTime()) ? null : Timestamp.fromDate(d)
+}
+
+const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName = 'School B', saving, onSave, onCancel }: AssetFormProps) => {
   const [form, setForm] = useState<AssetFormData>(DEFAULT)
 
   useEffect(() => {
     setForm(initial ? {
-      name:          initial.name,
-      brand:         initial.brand,
-      model:         initial.model,
-      categoryId:    initial.categoryId,
-      status:        initial.status ?? 'active',
-      serialNumber:  initial.serialNumber,
-      assetTag:      initial.assetTag,
-      purchaseDate:  initial.purchaseDate,
-      purchasePrice: initial.purchasePrice,
-      lifespanYears: initial.lifespanYears,
-      assignedTo:    initial.assignedTo,
-      location:      initial.location,
-      notes:         initial.notes,
+      name:           initial.name,
+      brand:          initial.brand,
+      model:          initial.model,
+      categoryId:     initial.categoryId,
+      subcategoryId:  initial.subcategoryId  ?? '',
+      school:         initial.school         ?? 'school_a',
+      status:         initial.status         ?? 'active',
+      serialNumber:   initial.serialNumber,
+      assetTag:       initial.assetTag,
+      purchaseDate:   initial.purchaseDate,
+      purchasePrice:  initial.purchasePrice,
+      estimatedValue: initial.estimatedValue ?? 0,
+      lifespanYears:  initial.lifespanYears,
+      warrantyExpiry: initial.warrantyExpiry ?? null,
+      assignedTo:     initial.assignedTo,
+      location:       initial.location,
+      notes:          initial.notes,
     } : DEFAULT)
   }, [initial])
 
   const set = <K extends keyof AssetFormData>(key: K, val: AssetFormData[K]) =>
-    setForm((prev) => ({ ...prev, [key]: val }))
+    setForm(prev => ({ ...prev, [key]: val }))
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: { preventDefault(): void }) => {
     e.preventDefault()
     if (!form.name.trim() || !form.categoryId) return
     onSave(form)
   }
 
-  const categoryOptions = categories.map((c) => ({ label: c.name, value: c.id }))
+  const selectedCat   = categories.find(c => c.id === form.categoryId)
+  const subcatOptions = [
+    { label: '— None —', value: '' },
+    ...(selectedCat?.subcategories ?? []).map(s => ({ label: s, value: s })),
+  ]
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-column gap-4">
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-      <div className="flex flex-column gap-2">
-        <FieldLabel>Asset Name *</FieldLabel>
-        <InputText value={form.name} onChange={(e) => set('name', e.target.value)} placeholder='e.g. MacBook Pro 14"' className="w-full" required autoFocus />
+      {/* ASSET NAME */}
+      <div style={S.field}>
+        <label style={S.label}>Asset Name <span style={{ color: '#ef4444' }}>*</span></label>
+        <input
+          style={S.input}
+          value={form.name}
+          onChange={e => set('name', e.target.value)}
+          placeholder="e.g. Epson BrightLink — Room 204"
+          required
+          autoFocus
+          onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+          onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+        />
       </div>
 
-      <div className="grid">
-        <div className="col-6 flex flex-column gap-2">
-          <FieldLabel>Brand</FieldLabel>
-          <InputText value={form.brand} onChange={(e) => set('brand', e.target.value)} placeholder="Apple" className="w-full" />
+      {/* SCHOOL / SITE  +  CATEGORY */}
+      <div style={S.row}>
+        <div style={S.field}>
+          <label style={S.label}>School / Site</label>
+          <select
+            style={S.select}
+            value={form.school}
+            onChange={e => set('school', e.target.value)}
+          >
+            <option value="school_a">{schoolAName}</option>
+            <option value="school_b">{schoolBName}</option>
+          </select>
         </div>
-        <div className="col-6 flex flex-column gap-2">
-          <FieldLabel>Model</FieldLabel>
-          <InputText value={form.model} onChange={(e) => set('model', e.target.value)} placeholder="MBP14-M3" className="w-full" />
-        </div>
-      </div>
-
-      <div className="grid">
-        <div className="col-6 flex flex-column gap-2">
-          <FieldLabel>Category *</FieldLabel>
-          <Dropdown value={form.categoryId} options={categoryOptions} onChange={(e) => set('categoryId', e.value)} placeholder="Select a category" className="w-full" />
-        </div>
-        <div className="col-6 flex flex-column gap-2">
-          <FieldLabel>Status</FieldLabel>
-          <Dropdown value={form.status} options={ASSET_STATUS_OPTIONS} onChange={(e) => set('status', e.value)} className="w-full" />
-        </div>
-      </div>
-
-      <div className="grid">
-        <div className="col-6 flex flex-column gap-2">
-          <FieldLabel>Serial Number</FieldLabel>
-          <InputText value={form.serialNumber} onChange={(e) => set('serialNumber', e.target.value)} placeholder="SN123456" className="w-full" />
-        </div>
-        <div className="col-6 flex flex-column gap-2">
-          <FieldLabel>Asset Tag</FieldLabel>
-          <InputText value={form.assetTag} onChange={(e) => set('assetTag', e.target.value)} placeholder="TT-0001" className="w-full" />
+        <div style={S.field}>
+          <label style={S.label}>Category <span style={{ color: '#ef4444' }}>*</span></label>
+          <select
+            style={S.select}
+            value={form.categoryId}
+            onChange={e => { set('categoryId', e.target.value); set('subcategoryId', '') }}
+            required
+          >
+            <option value="">Select a category</option>
+            {categories.filter(c => !c.isDeleted).map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
         </div>
       </div>
 
-      <div className="grid">
-        <div className="col-6 flex flex-column gap-2">
-          <FieldLabel>Purchase Date</FieldLabel>
-          <Calendar
-            value={form.purchaseDate.toDate()}
-            onChange={(e) => { if (e.value instanceof Date) set('purchaseDate', Timestamp.fromDate(e.value)) }}
-            dateFormat="mm/dd/yy"
-            showIcon
-            className="w-full"
+      {/* SUBCATEGORY  +  STATUS */}
+      <div style={S.row}>
+        <div style={S.field}>
+          <label style={S.label}>Subcategory</label>
+          <select
+            style={S.select}
+            value={form.subcategoryId}
+            onChange={e => set('subcategoryId', e.target.value)}
+            disabled={subcatOptions.length <= 1}
+          >
+            {subcatOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+        <div style={S.field}>
+          <label style={S.label}>Status</label>
+          <select
+            style={S.select}
+            value={form.status}
+            onChange={e => set('status', e.target.value as AssetFormData['status'])}
+          >
+            {ASSET_STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* SERIAL / ASSET ID  +  MODEL / MAKE */}
+      <div style={S.row}>
+        <div style={S.field}>
+          <label style={S.label}>Serial / Asset ID</label>
+          <input
+            style={S.input}
+            value={form.serialNumber}
+            onChange={e => set('serialNumber', e.target.value)}
+            placeholder="e.g. SN123456"
+            onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
           />
         </div>
-        <div className="col-6 flex flex-column gap-2">
-          <FieldLabel>Purchase Price ($)</FieldLabel>
-          <InputNumber value={form.purchasePrice} onValueChange={(e) => set('purchasePrice', e.value ?? 0)} mode="currency" currency="USD" locale="en-US" className="w-full" />
+        <div style={S.field}>
+          <label style={S.label}>Model / Make</label>
+          <input
+            style={S.input}
+            value={form.model}
+            onChange={e => set('model', e.target.value)}
+            placeholder="e.g. Epson BrightLink 595Wi"
+            onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+          />
         </div>
       </div>
 
-      <div className="flex flex-column gap-2">
-        <FieldLabel>Expected Lifespan (years)</FieldLabel>
-        <InputNumber value={form.lifespanYears} onValueChange={(e) => set('lifespanYears', e.value ?? 1)} min={1} max={20} showButtons className="w-full" />
-      </div>
-
-      <div className="grid">
-        <div className="col-6 flex flex-column gap-2">
-          <FieldLabel>Assigned To</FieldLabel>
-          <InputText value={form.assignedTo} onChange={(e) => set('assignedTo', e.target.value)} placeholder="Name or dept." className="w-full" />
+      {/* ASSIGNED TO / DEPT  +  LOCATION / ROOM */}
+      <div style={S.row}>
+        <div style={S.field}>
+          <label style={S.label}>Assigned To / Dept</label>
+          <input
+            style={S.input}
+            value={form.assignedTo}
+            onChange={e => set('assignedTo', e.target.value)}
+            placeholder="Name or department"
+            onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+          />
         </div>
-        <div className="col-6 flex flex-column gap-2">
-          <FieldLabel>Location / Room</FieldLabel>
-          <InputText value={form.location} onChange={(e) => set('location', e.target.value)} placeholder="e.g. Room 204" className="w-full" />
+        <div style={S.field}>
+          <label style={S.label}>Location / Room</label>
+          <input
+            style={S.input}
+            value={form.location}
+            onChange={e => set('location', e.target.value)}
+            placeholder="e.g. Boiler Room B"
+            onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+          />
         </div>
       </div>
 
-      <div className="flex flex-column gap-2">
-        <FieldLabel>Notes</FieldLabel>
-        <InputTextarea value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Any additional details..." rows={3} className="w-full" autoResize />
+      {/* PURCHASE DATE  +  LIFESPAN (YEARS) */}
+      <div style={S.row}>
+        <div style={S.field}>
+          <label style={S.label}>Purchase Date</label>
+          <input
+            type="date"
+            style={S.date}
+            value={toDateInput(form.purchaseDate)}
+            onChange={e => { const ts = fromDateInput(e.target.value); if (ts) set('purchaseDate', ts) }}
+            onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+          />
+        </div>
+        <div style={S.field}>
+          <label style={S.label}>Lifespan (Years)</label>
+          <input
+            type="number"
+            style={S.input}
+            value={form.lifespanYears}
+            onChange={e => set('lifespanYears', Math.max(1, Number(e.target.value)))}
+            min={1} max={30}
+            onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+          />
+        </div>
       </div>
 
-      <div className="flex gap-2 justify-content-end">
-        <Button type="button" label="Cancel" severity="secondary" outlined onClick={onCancel} disabled={saving} />
-        <Button type="submit" label={saving ? '' : initial ? 'Save Changes' : 'Add Asset'} icon={saving ? 'pi pi-spin pi-spinner' : undefined} disabled={saving || !form.name.trim() || !form.categoryId} />
+      {/* EST. VALUE ($)  +  WARRANTY EXPIRY */}
+      <div style={S.row}>
+        <div style={S.field}>
+          <label style={S.label}>Est. Value ($)</label>
+          <input
+            type="number"
+            style={S.input}
+            value={form.estimatedValue}
+            onChange={e => { const v = Number(e.target.value); set('estimatedValue', v); set('purchasePrice', v) }}
+            min={0}
+            placeholder="0"
+            onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+          />
+        </div>
+        <div style={S.field}>
+          <label style={S.label}>Warranty Expiry</label>
+          <input
+            type="date"
+            style={S.date}
+            value={form.warrantyExpiry ? toDateInput(form.warrantyExpiry) : ''}
+            onChange={e => set('warrantyExpiry', fromDateInput(e.target.value))}
+            onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+          />
+        </div>
+      </div>
+
+      {/* NOTES */}
+      <div style={S.field}>
+        <label style={S.label}>Notes</label>
+        <textarea
+          style={{ ...S.input, resize: 'vertical', minHeight: 80 }}
+          value={form.notes}
+          onChange={e => set('notes', e.target.value)}
+          placeholder="Any additional notes, service history, etc."
+          rows={3}
+          onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+          onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+        />
+      </div>
+
+      {/* Footer */}
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 4 }}>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={saving}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, background: 'var(--surface-section)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.4 : 1 }}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={saving || !form.name.trim() || !form.categoryId}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, background: 'var(--primary-color)', border: '1px solid var(--primary-color)', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: saving || !form.name.trim() || !form.categoryId ? 'not-allowed' : 'pointer', opacity: saving || !form.name.trim() || !form.categoryId ? 0.4 : 1 }}
+        >
+          {saving ? <><i className="pi pi-spin pi-spinner" style={{ fontSize: 13 }} /> Saving…</> : initial ? 'Save Changes' : 'Save Asset'}
+        </button>
       </div>
 
     </form>

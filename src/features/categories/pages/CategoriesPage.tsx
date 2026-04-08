@@ -11,10 +11,14 @@ import { useCategoryMutations } from '../hooks/useCategoryMutations'
 import CategoryForm from '../components/CategoryForm'
 import { CATEGORY_COLORS } from '../types/category.types'
 import type { Category, CategoryFormData, ColorKey } from '../types/category.types'
+import { useTopbarTitle } from '../../../contexts/TopbarContext'
 
 const CategoriesPage = () => {
+  const { setTitle, clearTitle } = useTopbarTitle()
   const toast = useRef<Toast>(null)
   const [categories, setCategories] = useState<Category[]>([])
+
+  useEffect(() => { setTitle('Categories'); return clearTitle }, [])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selected, setSelected] = useState<Category | undefined>()

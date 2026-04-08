@@ -9,17 +9,37 @@ export type ColorKey =
   | 'red'
   | 'orange'
 
+export type CareFrequency = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annually' | 'asneeded'
+
+export const CARE_FREQUENCY_OPTIONS: { label: string; value: CareFrequency }[] = [
+  { label: 'Daily',     value: 'daily'     },
+  { label: 'Weekly',    value: 'weekly'    },
+  { label: 'Monthly',   value: 'monthly'   },
+  { label: 'Quarterly', value: 'quarterly' },
+  { label: 'Annually',  value: 'annually'  },
+  { label: 'As Needed', value: 'asneeded'  },
+]
+
+export interface CareTask {
+  id: string
+  task: string
+  freq: CareFrequency
+  description: string
+}
+
 export interface Category {
   id: string
   name: string
   icon: string      // PrimeIcon class e.g. 'pi pi-desktop'
   colorKey: ColorKey
+  subcategories: string[]
+  careTasks: CareTask[]
   isDeleted: boolean
   createdAt: Timestamp
   updatedAt: Timestamp
 }
 
-export type CategoryFormData = Pick<Category, 'name' | 'icon' | 'colorKey'>
+export type CategoryFormData = Pick<Category, 'name' | 'icon' | 'colorKey' | 'subcategories' | 'careTasks'>
 
 // ── Preset icons ──────────────────────────────────────────────────
 export const CATEGORY_ICONS: { value: string; label: string }[] = [

@@ -16,22 +16,27 @@ const COL = 'assets'
 
 const toAsset = (id: string, data: Record<string, unknown>): Asset => ({
   id,
-  name:          data.name          as string,
-  brand:         data.brand         as string,
-  model:         data.model         as string,
-  categoryId:    data.categoryId    as string,
-  status:        (data.status as Asset['status']) ?? 'active',
-  serialNumber:  data.serialNumber  as string,
-  assetTag:      data.assetTag      as string,
-  purchaseDate:  data.purchaseDate  as Timestamp,
-  purchasePrice: data.purchasePrice as number,
-  lifespanYears: data.lifespanYears as number,
-  assignedTo:    data.assignedTo    as string,
-  location:      (data.location     as string) ?? '',
-  notes:         data.notes         as string,
-  isDeleted:     data.isDeleted     as boolean,
-  createdAt:     data.createdAt     as Timestamp,
-  updatedAt:     data.updatedAt     as Timestamp,
+  name:             data.name             as string,
+  brand:            (data.brand           as string) ?? '',
+  model:            (data.model           as string) ?? '',
+  categoryId:       data.categoryId       as string,
+  subcategoryId:    (data.subcategoryId   as string) ?? '',
+  school:           (data.school          as string) ?? '',
+  status:           (data.status          as Asset['status']) ?? 'active',
+  serialNumber:     (data.serialNumber    as string) ?? '',
+  assetTag:         (data.assetTag        as string) ?? '',
+  purchaseDate:     data.purchaseDate     as Timestamp,
+  purchasePrice:    (data.purchasePrice   as number) ?? 0,
+  estimatedValue:   (data.estimatedValue  as number) ?? 0,
+  lifespanYears:    (data.lifespanYears   as number) ?? 3,
+  warrantyExpiry:   (data.warrantyExpiry  as Timestamp) ?? null,
+  assignedTo:       (data.assignedTo      as string) ?? '',
+  location:         (data.location        as string) ?? '',
+  notes:            (data.notes           as string) ?? '',
+  careCompletions:  (data.careCompletions as Record<string, Timestamp>) ?? {},
+  isDeleted:        (data.isDeleted       as boolean) ?? false,
+  createdAt:        data.createdAt        as Timestamp,
+  updatedAt:        data.updatedAt        as Timestamp,
 })
 
 /** Real-time subscription — all assets (including soft-deleted) for the management table. */
@@ -96,21 +101,39 @@ const restore = async (id: string): Promise<boolean> => {
 const replicate = async (asset: Asset): Promise<boolean> => {
   try {
     await addDoc(collection(db, COL), {
-      name:          `${asset.name} (Copy)`,
-      brand:         asset.brand,
-      model:         asset.model,
-      categoryId:    asset.categoryId,
-      serialNumber:  '',
-      assetTag:      '',
-      purchaseDate:  asset.purchaseDate,
-      purchasePrice: asset.purchasePrice,
-      lifespanYears: asset.lifespanYears,
-      assignedTo:    '',
-      location:      asset.location,
-      notes:         asset.notes,
-      isDeleted:     false,
-      createdAt:     serverTimestamp(),
-      updatedAt:     serverTimestamp(),
+      name:            `${asset.name} (Copy)`,
+      brand:           asset.brand,
+      model:           asset.model,
+      categoryId:      asset.categoryId,
+      subcategoryId:   asset.subcategoryId,
+      school:          asset.school,
+      serialNumber:    '',
+      assetTag:        '',
+      purchaseDate:    asset.purchaseDate,
+      purchasePrice:   asset.purchasePrice,
+      estimatedValue:  asset.estimatedValue,
+      lifespanYears:   asset.lifespanYears,
+      warrantyExpiry:  asset.warrantyExpiry,
+      assignedTo:      '',
+      location:        asset.location,
+      notes:           asset.notes,
+      careCompletions: {},
+      isDeleted:       false,
+      createdAt:       serverTimestamp(),
+      updatedAt:       serverTimestamp(),
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
+/** Log care task completion on an asset. */
+const logCare = async (assetId: string, taskId: string, date: Timestamp): Promise<boolean> => {
+  try {
+    await updateDoc(doc(db, COL, assetId), {
+      [`careCompletions.${taskId}`]: date,
+      updatedAt: serverTimestamp(),
     })
     return true
   } catch {
@@ -126,4 +149,5 @@ export const assetService = {
   softDelete,
   restore,
   replicate,
+  logCare,
 }

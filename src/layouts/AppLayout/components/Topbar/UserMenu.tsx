@@ -42,22 +42,23 @@ const UserMenu = () => {
 
   return (
     <div className="flex align-items-center">
-      <Menu 
-        ref={menuRef} 
-        model={items} 
-        popup 
-        // surface-overlay y z-1000 son claves para que no sea transparente y esté arriba
-        className="border-1 border-white-alpha-10 surface-overlay shadow-4 border-round-xl mt-2 z-5"
-        style={{ backgroundColor: '#1a1f2e' }} 
+      <Menu
+        ref={menuRef}
+        model={items}
+        popup
+        onShow={() => { document.body.style.overflow = 'hidden' }}
+        onHide={() => { document.body.style.overflow = '' }}
+        className="shadow-4"
+        style={{ backgroundColor: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, overflow: 'hidden' }}
         pt={{
-            root: { 
+            root: {
               className: 'w-15rem p-2',
-              style: { zIndex: 1000 } 
+              style: { zIndex: 1100, background: 'var(--surface-card)', borderRadius: 16 },
             },
-            menu: { className: 'p-0 list-none' },
+            menu: { className: 'p-0 list-none', style: { background: 'var(--surface-card)' } },
             action: { className: 'hover:surface-hover p-3 border-round-lg transition-colors flex align-items-center' },
             icon: { className: 'mr-2 text-primary' },
-            label: { className: 'text-900' }
+            label: { className: 'text-900' },
         }}
       />
       <Avatar

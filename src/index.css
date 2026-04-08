@@ -1,26 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;0,700;1,300&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-/* ── Variables de Marca y Sistema ──────────────────────────────── */
+/* ── Design Tokens ──────────────────────────────────────────────── */
 :root {
   --font-family: 'DM Sans', sans-serif;
   --primary-color: #4f8fff;
   --primary-color-text: #ffffff;
   --highlight-bg: rgba(79, 143, 255, 0.16);
   --highlight-text-color: #4f8fff;
-  
-  /* Colores de superficie consistentes */
-  --tt-bg-input: #1a1f2e;
-  --tt-border: rgba(255, 255, 255, 0.1);
-  --tt-red: #f87171;
+
+  --tt-bg-input:  #1a1e28;
+  --tt-border:    rgba(255, 255, 255, 0.1);
+  --tt-accent:    #4f8fff;
+  --tt-accent2:   #7c3aed;
+  --tt-green:     #22c55e;
+  --tt-yellow:    #f59e0b;
+  --tt-red:       #ef4444;
+  --tt-orange:    #f97316;
+  --tt-cyan:      #06b6d4;
+  --tt-purple:    #7c3aed;
+
+  /* Surface overrides for consistent dark depth */
+  --tt-surface-card:    #131720;
+  --tt-surface-section: #0f1219;
+  --tt-surface-hover:   rgba(255,255,255,0.04);
+  --tt-surface-overlay: #1a1f2e;
 }
 
-/* ── Reset y Base ─────────────────────────────────────────────── */
+/* ── Reset & Base ───────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html, body, #root { height: 100%; }
-
 body {
-  background: var(--surface-ground);
+  background: #0b0d12;
   font-family: var(--font-family);
   color: var(--text-color);
   -webkit-font-smoothing: antialiased;
@@ -28,106 +38,509 @@ body {
   overflow-x: hidden;
 }
 
-/* ── Utilidades de Tipografía ───────────────────────────────────── */
+/* ── Typography Utilities ───────────────────────────────────────── */
 .font-serif { font-family: 'Fraunces', serif !important; }
 .font-mono  { font-family: 'DM Mono', monospace !important; }
 
-/* ── Scrollbars Globales ─────────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { 
-  background: rgba(255, 255, 255, 0.1); 
-  border-radius: 10px; 
-}
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+/* ── Scrollbars ─────────────────────────────────────────────────── */
+::-webkit-scrollbar              { width: 5px; height: 5px; }
+::-webkit-scrollbar-track        { background: transparent; }
+::-webkit-scrollbar-thumb        { background: rgba(255,255,255,0.08); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover  { background: rgba(255,255,255,0.16); }
 
-/* ── Overrides de Componentes PrimeReact ───────────────────────── */
+/* ─────────────────────────────────────────────────────────────────
+   PRIMEREACT COMPONENT OVERRIDES
+   ───────────────────────────────────────────────────────────────── */
 
-/* Inputs y Selects */
+/* ── Inputs ─────────────────────────────────────────────────────── */
 .p-inputtext,
 .p-password .p-inputtext,
 .p-dropdown,
 .p-inputtextarea,
-.p-calendar .p-inputtext {
+.p-calendar .p-inputtext,
+.p-inputnumber .p-inputtext {
   background: var(--tt-bg-input) !important;
   border: 1px solid var(--tt-border) !important;
-  color: rgba(255, 255, 255, 0.87) !important;
+  border-radius: 9px !important;
+  color: rgba(255,255,255,0.87) !important;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
-
-.p-inputtext:enabled:hover, .p-dropdown:not(.p-disabled):hover {
+.p-inputtext:enabled:hover,
+.p-dropdown:not(.p-disabled):hover {
+  border-color: rgba(79,143,255,0.5) !important;
+}
+.p-inputtext:enabled:focus,
+.p-password .p-inputtext:enabled:focus,
+.p-dropdown:not(.p-disabled).p-focus {
   border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 2px rgba(79,143,255,0.2) !important;
 }
 
-.p-inputtext:enabled:focus, .p-password .p-inputtext:enabled:focus {
-  border-color: var(--primary-color) !important;
-  box-shadow: 0 0 0 2px rgba(79, 143, 255, 0.2) !important;
+/* InputNumber buttons */
+.p-inputnumber-button {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: var(--tt-border) !important;
+  color: rgba(255,255,255,0.6) !important;
+}
+.p-inputnumber-button:hover {
+  background: rgba(255,255,255,0.12) !important;
+  color: rgba(255,255,255,0.9) !important;
 }
 
-/* ── SOLUCIÓN: Menús y Popups Transparentes ──────────────────── */
-.p-menu.p-menu-overlay, 
-.p-dropdown-panel, 
-.p-overlaypanel {
-  background: #1a1f2e !important; /* Fondo sólido */
+/* Dropdown arrow & clear icons */
+.p-dropdown .p-dropdown-trigger { color: rgba(255,255,255,0.4) !important; }
+.p-dropdown-label               { color: rgba(255,255,255,0.87) !important; }
+.p-dropdown .p-placeholder      { color: rgba(255,255,255,0.35) !important; }
+.p-inputtext::placeholder       { color: rgba(255,255,255,0.3) !important; }
+
+/* ── Dropdown Panel ─────────────────────────────────────────────── */
+.p-dropdown-panel,
+.p-multiselect-panel {
+  background: #1a1f2e !important;
   border: 1px solid var(--tt-border) !important;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
-  backdrop-filter: blur(8px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.6) !important;
+}
+.p-dropdown-items-wrapper { background: transparent !important; }
+.p-dropdown-item {
+  color: rgba(255,255,255,0.8) !important;
+  font-size: 13px !important;
+}
+.p-dropdown-item:not(.p-highlight):hover {
+  background: rgba(255,255,255,0.06) !important;
+  color: #fff !important;
+}
+.p-dropdown-item.p-highlight {
+  background: rgba(79,143,255,0.18) !important;
+  color: var(--primary-color) !important;
 }
 
-.p-menu .p-menuitem-link:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
+/* ── Overlay Panel & Menu ────────────────────────────────────────── */
+.p-menu.p-menu-overlay,
+.p-overlaypanel {
+  background: #1a1f2e !important;
+  border: 1px solid var(--tt-border) !important;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.6) !important;
+}
+.p-menu .p-menuitem-link         { color: rgba(255,255,255,0.75) !important; }
+.p-menu .p-menuitem-link:hover   { background: rgba(255,255,255,0.06) !important; }
+.p-menu .p-menuitem-link .p-menuitem-icon { color: rgba(255,255,255,0.5) !important; }
+
+/* ── Dialog ─────────────────────────────────────────────────────── */
+.p-dialog {
+  background: #131720 !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.8) !important;
+  overflow: hidden;
+}
+.p-dialog .p-dialog-header {
+  background: #1a1f2e !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+  padding: 18px 24px !important;
+  color: rgba(255,255,255,0.92) !important;
+  font-family: 'Fraunces', serif !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+}
+.p-dialog .p-dialog-header .p-dialog-header-icons .p-dialog-header-icon {
+  color: rgba(255,255,255,0.4) !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 8px !important;
+}
+.p-dialog .p-dialog-header .p-dialog-header-icons .p-dialog-header-icon:hover {
+  background: rgba(255,255,255,0.08) !important;
+  color: rgba(255,255,255,0.8) !important;
+}
+.p-dialog .p-dialog-content {
+  background: #131720 !important;
+  color: rgba(255,255,255,0.85) !important;
+  padding: 24px !important;
+}
+.p-dialog .p-dialog-footer {
+  background: #131720 !important;
+  border-top: 1px solid rgba(255,255,255,0.08) !important;
+  padding: 16px 24px !important;
+}
+.p-dialog-mask.p-component-overlay {
+  background: rgba(0,0,0,0.7) !important;
+  backdrop-filter: blur(4px) !important;
 }
 
-/* ── Password Component Fixes ────────────────────────────────── */
-.p-password { position: relative; display: inline-flex; width: 100%; }
+/* ── Confirm Dialog ─────────────────────────────────────────────── */
+.p-confirm-dialog .p-dialog-content {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 16px !important;
+}
+.p-confirm-dialog .p-confirm-dialog-icon { font-size: 24px !important; color: var(--tt-yellow) !important; margin-top: 2px; }
 
-.p-password .p-inputtext { padding-right: 3rem !important; }
+/* ── Sidebar (mobile drawer) ────────────────────────────────────── */
+.p-sidebar {
+  background: #131720 !important;
+  border-right: 1px solid rgba(255,255,255,0.1) !important;
+  box-shadow: 4px 0 32px rgba(0,0,0,0.6) !important;
+}
+.p-sidebar-mask.p-component-overlay { background: rgba(0,0,0,0.65) !important; backdrop-filter: blur(3px) !important; }
+.p-sidebar .p-sidebar-header { display: none !important; }
+.p-sidebar .p-sidebar-content { padding: 0 !important; height: 100% !important; }
 
-.p-password-show-icon, 
-.p-password-hide-icon {
-  position: absolute;
-  top: 50%;
-  right: 1rem;
-  margin-top: -8px; /* Centrado manual */
-  color: rgba(255, 255, 255, 0.4) !important;
-  cursor: pointer;
+/* ── Toast ──────────────────────────────────────────────────────── */
+.p-toast .p-toast-message {
+  background: #1a1f2e !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(8px) !important;
+}
+.p-toast .p-toast-message .p-toast-message-text .p-toast-summary {
+  color: rgba(255,255,255,0.95) !important;
+  font-weight: 600 !important;
+}
+.p-toast .p-toast-message .p-toast-message-text .p-toast-detail {
+  color: rgba(255,255,255,0.6) !important;
+}
+.p-toast .p-toast-message.p-toast-message-success { border-left: 4px solid var(--tt-green) !important; }
+.p-toast .p-toast-message.p-toast-message-warn    { border-left: 4px solid var(--tt-yellow) !important; }
+.p-toast .p-toast-message.p-toast-message-error   { border-left: 4px solid var(--tt-red) !important; }
+.p-toast .p-toast-message.p-toast-message-info    { border-left: 4px solid var(--tt-accent) !important; }
+.p-toast .p-toast-icon-close {
+  color: rgba(255,255,255,0.4) !important;
+  width: 24px !important;
+  height: 24px !important;
+}
+.p-toast .p-toast-icon-close:hover { background: rgba(255,255,255,0.08) !important; color: #fff !important; }
+
+/* ── TabView ────────────────────────────────────────────────────── */
+.p-tabview .p-tabview-nav {
+  background: transparent !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+.p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: rgba(255,255,255,0.45) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 10px 16px !important;
+  transition: color 0.15s !important;
+}
+.p-tabview .p-tabview-nav li .p-tabview-nav-link:hover {
+  color: rgba(255,255,255,0.8) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+}
+.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  color: var(--primary-color) !important;
+  border-bottom: 2px solid var(--primary-color) !important;
+  background: transparent !important;
+}
+.p-tabview .p-tabview-panels { background: transparent !important; padding: 0 !important; }
+.p-tabview .p-tabview-panel  { padding: 0 !important; }
+
+/* ── Divider ────────────────────────────────────────────────────── */
+.p-divider::before { border-top-color: rgba(255,255,255,0.08) !important; }
+.p-divider-horizontal { margin: 0 !important; }
+
+/* ── Tag / Badge ────────────────────────────────────────────────── */
+.p-tag {
+  font-family: 'DM Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.5px !important;
+  padding: 2px 8px !important;
+  border-radius: 99px !important;
+}
+.p-tag.p-tag-success   { background: rgba(34,197,94,0.15)   !important; color: #22c55e !important; }
+.p-tag.p-tag-warning   { background: rgba(245,158,11,0.15)  !important; color: #f59e0b !important; }
+.p-tag.p-tag-danger    { background: rgba(239,68,68,0.15)   !important; color: #ef4444 !important; }
+.p-tag.p-tag-info      { background: rgba(79,143,255,0.15)  !important; color: #4f8fff !important; }
+.p-tag.p-tag-secondary { background: rgba(255,255,255,0.08) !important; color: rgba(255,255,255,0.55) !important; }
+
+/* ── Button ─────────────────────────────────────────────────────── */
+.p-button {
+  font-family: var(--font-family) !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.2px !important;
+  border-radius: 9px !important;
+  transition: all 0.15s !important;
+}
+.p-button:not(.p-button-text):not(.p-button-outlined):not(.p-button-link):not([class*="p-button-severity"]) {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0 rgba(79,143,255,0) !important;
+}
+.p-button:not(.p-button-text):not(.p-button-outlined):hover:not(:disabled) {
+  filter: brightness(1.1) !important;
+  box-shadow: 0 4px 16px rgba(79,143,255,0.3) !important;
+}
+.p-button.p-button-outlined {
+  border-color: rgba(255,255,255,0.15) !important;
+  color: rgba(255,255,255,0.7) !important;
+}
+.p-button.p-button-outlined:hover:not(:disabled) {
+  background: rgba(255,255,255,0.05) !important;
+  border-color: rgba(255,255,255,0.3) !important;
+  color: #fff !important;
+}
+.p-button.p-button-text {
+  color: rgba(255,255,255,0.55) !important;
+}
+.p-button.p-button-text:hover:not(:disabled) {
+  background: rgba(255,255,255,0.06) !important;
+  color: rgba(255,255,255,0.85) !important;
 }
 
-/* ── Layout & Navigation ──────────────────────────────────────── */
+/* ── Checkbox ───────────────────────────────────────────────────── */
+.p-checkbox .p-checkbox-box {
+  background: var(--tt-bg-input) !important;
+  border-color: var(--tt-border) !important;
+  border-radius: 5px !important;
+}
+.p-checkbox .p-checkbox-box.p-highlight {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+.p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box:hover { border-color: var(--primary-color) !important; }
+
+/* ── Calendar ───────────────────────────────────────────────────── */
+.p-datepicker {
+  background: #1a1f2e !important;
+  border: 1px solid var(--tt-border) !important;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.6) !important;
+  border-radius: 12px !important;
+}
+.p-datepicker .p-datepicker-header {
+  background: transparent !important;
+  border-bottom-color: rgba(255,255,255,0.08) !important;
+  color: rgba(255,255,255,0.85) !important;
+}
+.p-datepicker table td > span:not(.p-disabled) { color: rgba(255,255,255,0.75) !important; }
+.p-datepicker table td > span.p-highlight      { background: rgba(79,143,255,0.2) !important; color: var(--primary-color) !important; }
+.p-datepicker table td > span:not(.p-disabled):hover { background: rgba(255,255,255,0.08) !important; }
+.p-datepicker .p-datepicker-other-month span   { color: rgba(255,255,255,0.2) !important; }
+
+/* ── DataTable ──────────────────────────────────────────────────── */
+.p-datatable .p-datatable-thead > tr > th {
+  background: rgba(255,255,255,0.02) !important;
+  font-family: 'DM Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  color: rgba(255,255,255,0.35) !important;
+  font-weight: 500 !important;
+  border-color: rgba(255,255,255,0.06) !important;
+  padding: 12px 16px !important;
+}
+.p-datatable .p-datatable-tbody > tr {
+  background: transparent !important;
+  transition: background 0.12s;
+}
+.p-datatable .p-datatable-tbody > tr > td {
+  border-color: rgba(255,255,255,0.05) !important;
+  padding: 12px 16px !important;
+  color: rgba(255,255,255,0.8) !important;
+}
+.p-datatable .p-datatable-tbody > tr:hover {
+  background: rgba(255,255,255,0.03) !important;
+}
+.p-datatable .p-datatable-tbody > tr.p-highlight {
+  background: rgba(79,143,255,0.1) !important;
+}
+.p-datatable .p-sortable-column-icon { color: rgba(255,255,255,0.3) !important; }
+.p-datatable .p-sortable-column:hover { background: rgba(255,255,255,0.03) !important; }
+.p-paginator {
+  background: transparent !important;
+  border-top: 1px solid rgba(255,255,255,0.06) !important;
+  color: rgba(255,255,255,0.5) !important;
+}
+.p-paginator .p-paginator-pages .p-paginator-page {
+  color: rgba(255,255,255,0.55) !important;
+  border-radius: 8px !important;
+}
+.p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background: rgba(79,143,255,0.2) !important;
+  color: var(--primary-color) !important;
+}
+
+/* ── Avatar ─────────────────────────────────────────────────────── */
+.p-avatar {
+  background: rgba(79,143,255,0.15) !important;
+  color: var(--primary-color) !important;
+  font-weight: 600 !important;
+}
+
+/* ── Tooltip ────────────────────────────────────────────────────── */
+.p-tooltip .p-tooltip-text {
+  background: #1a1f2e !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  color: rgba(255,255,255,0.85) !important;
+  font-size: 12px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4) !important;
+}
+.p-tooltip.p-tooltip-right .p-tooltip-arrow,
+.p-tooltip.p-tooltip-left  .p-tooltip-arrow  { border-color: transparent !important; }
+
+/* ── ConfirmDialog ──────────────────────────────────────────────── */
+.tt-confirm-danger { background: var(--tt-red) !important; border-color: var(--tt-red) !important; }
+
+/* ─────────────────────────────────────────────────────────────────
+   LAYOUT
+   ───────────────────────────────────────────────────────────────── */
 .tt-sidebar {
   position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 240px;
-  z-index: 1100; /* Por encima de todo */
+  left: 0; top: 0; bottom: 0;
+  width: 260px;
+  z-index: 1100;
 }
-
-.tt-main { 
-  margin-left: 240px; 
+.tt-main {
+  margin-left: 260px;
   min-height: 100vh;
 }
-
 @media (max-width: 767px) {
   .tt-main { margin-left: 0; }
 }
 
-/* Animación de entrada */
-.animate-fade-up {
-  animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+/* ── Page content ────────────────────────────────────────────────── */
+.tt-page-content {
+  padding: 28px;
+  animation: fade-up 0.18s ease-out both;
 }
 
+/* ── Animations ─────────────────────────────────────────────────── */
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+.animate-fade-up { animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
-/* ── Helpers de Tabla ────────────────────────────────────────── */
-.p-datatable .p-datatable-tbody > tr {
-  background: transparent !important;
-  transition: background 0.2s;
+/* ─────────────────────────────────────────────────────────────────
+   UTILITY CLASSES
+   ───────────────────────────────────────────────────────────────── */
+
+/* Metric card top-border accent pattern */
+.tt-metric-card {
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--surface-card);
+  position: relative;
+  overflow: hidden;
 }
 
-.p-datatable .p-datatable-tbody > tr:hover {
-  background: rgba(255, 255, 255, 0.02) !important;
+/* Pill badge (replaces PrimeReact Tag in most places) */
+.tt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.tt-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Section label (mono uppercase used throughout) */
+.tt-section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  font-weight: 500;
+}
+
+/* Disabled row in DataTable */
+.tt-row-disabled td { opacity: 0.4; }
+
+/* ── IconField (search input with icon) ─────────────────────────── */
+.p-icon-field { position: relative; display: flex; width: 100%; }
+.p-icon-field .p-input-icon {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: rgba(255,255,255,0.3) !important;
+  z-index: 1;
+  pointer-events: none;
+}
+.p-icon-field-left .p-input-icon:first-of-type { left: 0.75rem !important; }
+.p-icon-field-right .p-input-icon:last-of-type  { right: 0.75rem !important; }
+.p-icon-field-left .p-inputtext  { padding-left: 2.25rem !important; }
+.p-icon-field-right .p-inputtext { padding-right: 2.25rem !important; }
+
+/* ─────────────────────────────────────────────────────────────────
+   RESPONSIVE
+   ───────────────────────────────────────────────────────────────── */
+
+/* Dialog — never wider than viewport */
+.p-dialog { max-width: calc(100vw - 24px) !important; }
+
+/* Tables — horizontal scroll on small screens */
+.tt-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tt-table-scroll table { min-width: 560px; }
+
+/* Two-column CSS grid sections */
+.tt-two-col {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 20px;
+  align-items: start;
+}
+.tt-with-panel {
+  display: grid;
+  gap: 16px;
+}
+
+/* Page content — tighter padding on mobile */
+@media (max-width: 767px) {
+  .tt-page-content { padding: 16px 14px !important; }
+
+  /* Sidebar detail panel — full width */
+  .p-sidebar { width: 100vw !important; max-width: 100vw !important; }
+
+  /* Metric cards: 2 per row on mobile */
+  .grid > .col-3 { width: 50% !important; }
+
+  /* Content sections: stack on mobile */
+  .grid > .col-6 { width: 100% !important; }
+  .grid > .col-4 { width: 100% !important; }
+
+  /* Two-column grids collapse */
+  .tt-two-col { grid-template-columns: 1fr !important; }
+  .tt-with-panel { grid-template-columns: 1fr !important; }
+
+  /* Header row: stack on small screens */
+  .tt-page-header { flex-direction: column !important; align-items: flex-start !important; }
+  .tt-page-header .tt-header-actions { width: 100%; }
+
+  /* School switcher compact */
+  .tt-school-btn { padding: 4px 8px !important; font-size: 11px !important; }
+}
+
+@media (max-width: 480px) {
+  /* Metric cards: 1 per row on very small */
+  .grid > .col-3 { width: 100% !important; }
+  .tt-topbar-subtitle { display: none !important; }
+}
+
+/* Password component fixes */
+.p-password { position: relative; display: inline-flex; width: 100%; }
+.p-password .p-inputtext { padding-right: 3rem !important; }
+.p-password-show-icon,
+.p-password-hide-icon {
+  position: absolute;
+  top: 50%; right: 1rem;
+  margin-top: -8px;
+  color: rgba(255,255,255,0.4) !important;
+  cursor: pointer;
 }

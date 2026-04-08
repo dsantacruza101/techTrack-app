@@ -13,31 +13,90 @@ service cloud.firestore {
           in ['admin', 'superAdmin'];
     }
 
-    // Users collection: only admins/superAdmins can read or write
+    function isSuperAdmin() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superAdmin';
+    }
+
+    // Users collection
     match /users/{userId} {
       allow read, write: if isAdminOrSuperAdmin();
-
-      // Users can read and write their own profile
       allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Assets: admins/superAdmins can create/edit/delete; regular users can only read
+    // Assets: admins can CRUD; users can update careCompletions only
     match /assets/{assetId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isAdminOrSuperAdmin();
+      allow create, delete: if isAdminOrSuperAdmin();
+      allow update: if isAdminOrSuperAdmin();
+      allow update: if isAuthenticated() &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['careCompletions', 'updatedAt']);
     }
 
-    // Categories: admins/superAdmins can create/edit/delete; regular users can only read
+    // Categories
     match /categories/{categoryId} {
       allow read: if isAuthenticated();
       allow create, update, delete: if isAdminOrSuperAdmin();
     }
 
-    // pendingUsers: admins/superAdmins write; any authenticated user can read
-    // (needed so onAuthStateChanged can query by email before users/{uid} exists)
+    // Work Orders: all authenticated can read & create; admin can edit/delete
+    match /workOrders/{woId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAdminOrSuperAdmin() ||
+        (isAuthenticated() &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'updatedAt']));
+      allow delete: if isAdminOrSuperAdmin();
+    }
+
+    // IT Tickets: all authenticated can read & create; admin can edit/delete/resolve
+    match /itTickets/{ticketId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdminOrSuperAdmin();
+    }
+
+    // Inventory: all authenticated can read; admin can CRUD; users can update stock counts
+    match /inventory/{itemId} {
+      allow read: if isAuthenticated();
+      allow create, delete: if isAdminOrSuperAdmin();
+      allow update: if isAdminOrSuperAdmin();
+      allow update: if isAuthenticated() &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['inStock', 'updatedAt']);
+    }
+
+    // Inventory stock logs (subcollection)
+    match /inventory/{itemId}/logs/{logId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdminOrSuperAdmin();
+    }
+
+    // Facility Map rooms
+    match /mapRooms/{roomId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdminOrSuperAdmin();
+    }
+
+    // App settings (single document: settings/app)
+    match /settings/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isSuperAdmin();
+    }
+
+    // Pending users
     match /pendingUsers/{docId} {
       allow read:                    if isAuthenticated();
       allow create, update, delete:  if isAdminOrSuperAdmin();
+    }
+
+    // Scheduled Reports: admins manage; Cloud Functions update lastSentAt/nextSendAt
+    match /scheduledReports/{reportId} {
+      allow read, create, delete: if isAdminOrSuperAdmin();
+      allow update: if false; // only Cloud Functions update lastSentAt/nextSendAt
     }
 
     // Deny everything else

@@ -9,67 +9,84 @@ import './Sidebar.css'
 
 interface SidebarProps {
   onNavClick?: () => void
+  onAddAsset?: () => void
 }
 
 const formatCurrency = (value: number): string =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
 
-const Sidebar = ({ onNavClick }: SidebarProps) => {
-  const { can } = usePermissions()
-  const navigate = useNavigate()
+const Sidebar = ({ onNavClick, onAddAsset }: SidebarProps) => {
+  const { can }        = usePermissions()
+  const navigate       = useNavigate()
   const { categories } = useCategories()
-  const { assets } = useAssets()
+  const { assets }     = useAssets()
 
-  // Conteo por categoría
   const countByCategory = (catId: string) =>
-    assets.filter(a => a.categoryId === catId).length
+    assets.filter(a => !a.isDeleted && a.categoryId === catId).length
 
-  // Conteo de equipos que necesitan reemplazo
   const replaceCount = assets.filter(
-    a => getLifespanStatus(a.purchaseDate, a.lifespanYears) === 'replace'
+    a => !a.isDeleted && getLifespanStatus(a.purchaseDate, a.lifespanYears) === 'replace'
   ).length
 
-  // Valor total de activos
-  const totalValue = assets.reduce((sum, a) => sum + (a.purchasePrice ?? 0), 0)
+  const activeCount = assets.filter(a => !a.isDeleted).length
+
+  const totalValue = assets
+    .filter(a => !a.isDeleted)
+    .reduce((sum, a) => sum + (a.purchasePrice ?? 0), 0)
+
+  const handleAddAsset = () => {
+    if (onAddAsset) { onAddAsset(); return }
+    navigate('/assets?add=true')
+    onNavClick?.()
+  }
 
   return (
     <div className="flex flex-column h-full w-full surface-card">
-      
-      {/* ── Logo ───────────────────────────────────────────────── */}
+
+      {/* ── Logo ───────────────────────────────────────── */}
       <div
         className="px-4 py-4 flex-shrink-0 cursor-pointer border-bottom-1 border-white-alpha-10"
         onClick={() => navigate('/assets')}
       >
-        <div className="font-serif text-2xl font-bold text-900 tracking-tight">
-          Tech<span className="text-primary">Track</span>
+        <div className="font-serif font-bold text-900" style={{ fontSize: 17 }}>
+          Facilities <span className="text-primary">TechTrack</span>
         </div>
-        <div className="font-mono text-xs mt-1 uppercase tracking-widest text-500" style={{ fontSize: '9px' }}>
+        <div className="font-mono mt-1 uppercase text-500" style={{ fontSize: 9, letterSpacing: '2px' }}>
           Asset Management
         </div>
       </div>
 
-      {/* ── Nav ────────────────────────────────────────────────── */}
-      <nav className="flex flex-column flex-1 overflow-y-auto px-3 py-3 gap-1 custom-scrollbar">
-        
-        {/* Overview */}
+      {/* ── Nav ────────────────────────────────────────── */}
+      <nav className="flex flex-column flex-1 overflow-y-auto px-3 py-3 gap-1">
+
+        {/* Overview — only 2 core items */}
         <SidebarNavSection label="Overview" />
-        <SidebarNavItem 
-          label="All Assets" 
-          icon="pi pi-th-large" 
-          to="/assets" 
-          badge={assets.length} 
-          onClick={onNavClick} 
+        <SidebarNavItem
+          label="All Assets"
+          icon="pi pi-th-large"
+          to="/assets"
+          badge={activeCount}
+          onClick={onNavClick}
+        />
+        <SidebarNavItem
+          label="Needs Replacing"
+          icon="pi pi-exclamation-triangle"
+          to="/assets?status=replace"
+          paramKey="status"
+          paramValue="replace"
+          badge={replaceCount > 0 ? replaceCount : undefined}
+          onClick={onNavClick}
         />
 
-        {/* Categories (Dinámicas) */}
-        {categories.length > 0 && (
+        {/* Categories */}
+        {categories.filter(c => !c.isDeleted).length > 0 && (
           <>
             <SidebarNavSection label="Categories" />
-            {categories.map((cat) => (
+            {categories.filter(c => !c.isDeleted).map(cat => (
               <SidebarNavItem
                 key={cat.id}
                 label={cat.name}
-                icon={cat.icon || 'pi pi-folder'} // Fallback si no hay icono
+                icon={cat.icon || 'pi pi-folder'}
                 to={`/assets?category=${cat.id}`}
                 paramKey="category"
                 paramValue={cat.id}
@@ -80,54 +97,46 @@ const Sidebar = ({ onNavClick }: SidebarProps) => {
           </>
         )}
 
-        {/* Status */}
-        <SidebarNavSection label="Status" />
-        <SidebarNavItem
-          label="Needs Replacing"
-          icon="pi pi-exclamation-triangle"
-          to="/assets?status=replace"
-          paramKey="status"
-          paramValue="replace"
-          badge={replaceCount}
-          onClick={onNavClick}
-        />
-
-        {/* Management (Protegido por permisos) */}
+        {/* Management — admin+ */}
         {(can('manage_categories') || can('invite_users')) && (
-          <SidebarNavSection label="Management" />
-        )}
-        
-        {can('manage_categories') && (
-          <SidebarNavItem 
-            label="Categories" 
-            icon="pi pi-tag" 
-            to="/categories" 
-            onClick={onNavClick} 
-          />
-        )}
-
-        {can('invite_users') && (
-          <SidebarNavItem 
-            label="Users" 
-            icon="pi pi-users" 
-            to="/users" 
-            onClick={onNavClick} 
-          />
+          <>
+            <SidebarNavSection label="Management" />
+            {can('manage_categories') && <SidebarNavItem label="Categories"   icon="pi pi-tag"   to="/categories"   onClick={onNavClick} />}
+            {can('invite_users')      && <SidebarNavItem label="Users"        icon="pi pi-users" to="/users"        onClick={onNavClick} />}
+            {can('manage_settings')   && <SidebarNavItem label="Options"      icon="pi pi-cog"   to="/options"      onClick={onNavClick} />}
+            {can('manage_integrations') && <SidebarNavItem label="Integrations" icon="pi pi-link" to="/integrations" onClick={onNavClick} />}
+          </>
         )}
 
       </nav>
 
-      {/* ── Footer stat ────────────────────────────────────────── */}
-      <div className="p-3 mt-auto border-top-1 border-white-alpha-10">
-        <div className="surface-hover border-round-xl p-3 border-1 border-white-alpha-10">
-          <div className="font-mono text-[10px] mb-2 uppercase tracking-wider text-500">
+      {/* ── Footer ─────────────────────────────────────── */}
+      <div className="px-3 py-3 border-top-1 border-white-alpha-10 flex flex-column gap-2">
+
+        {/* Add Asset button */}
+        {can('add_asset') && (
+          <button
+            type="button"
+            onClick={handleAddAsset}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, background: 'var(--primary-color)', border: '1px solid var(--primary-color)', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+          >
+            + Add Asset
+          </button>
+        )}
+
+        {/* Total Value stat */}
+        <div
+          className="border-round-lg p-3 border-1 border-white-alpha-10"
+          style={{ background: 'var(--surface-section)' }}
+        >
+          <div className="font-mono uppercase text-500 mb-1" style={{ fontSize: 9, letterSpacing: '1.5px' }}>
             Total Value Est.
           </div>
-          <div className="font-serif font-semibold text-2xl text-900">
+          <div className="font-serif font-semibold text-900" style={{ fontSize: 22 }}>
             {formatCurrency(totalValue)}
           </div>
           <div className="text-xs mt-1 text-500">
-            across {assets.length} asset{assets.length !== 1 ? 's' : ''}
+            {activeCount} asset{activeCount !== 1 ? 's' : ''} tracked
           </div>
         </div>
       </div>

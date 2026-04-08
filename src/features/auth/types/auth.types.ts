@@ -1,17 +1,43 @@
 export type Role = 'superAdmin' | 'admin' | 'user'
 
 export type Permission =
+  // Assets
   | 'add_asset'
   | 'edit_asset'
   | 'delete_asset'
   | 'replicate_asset'
   | 'export_csv'
+  // Categories
   | 'manage_categories'
+  // Users
   | 'invite_users'
   | 'disable_users'
   | 'change_roles'
   | 'delete_users'
   | 'create_super_admin'
+  // Preventive Care
+  | 'log_care'
+  | 'manage_care_tasks'
+  // Work Orders
+  | 'create_work_order'
+  | 'edit_work_order'
+  | 'delete_work_order'
+  | 'update_wo_status'
+  // IT Tickets
+  | 'submit_it_ticket'
+  | 'manage_it_tickets'
+  // Inventory
+  | 'log_inventory'
+  | 'manage_inventory'
+  // Facility Map
+  | 'edit_map'
+  // Finance & Reports
+  | 'view_finance'
+  | 'view_reports'
+  // Settings
+  | 'manage_settings'
+  | 'manage_integrations'
+  | 'import_data'
 
 export interface UserProfile {
   uid: string

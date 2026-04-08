@@ -11,7 +11,26 @@
       "Bash(find /Users/danielsantacruz/Documents/React/techtrack-app/src/features/assets -type f -name *.ts -o -name *.tsx -o -name *.js -o -name *.jsx)",
       "Bash(firebase deploy:*)",
       "Bash(xargs cat:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(npm install:*)",
+      "Bash(ls /Users/danielsantacruz/Downloads/*.html)",
+      "Bash(find /Users/danielsantacruz/Downloads -name *.html)",
+      "Bash(for f:*)",
+      "Bash(do)",
+      "Bash(sed -i '' 's/\"\"p-4 flex flex-column/\"\"flex flex-column/g' \"$f\")",
+      "Bash(done)",
+      "Bash(for page:*)",
+      "Bash(do echo:*)",
+      "Bash(grep -r \"tt-accent\\\\|tt-green\\\\|tt-yellow\\\\|tt-red\" /Users/danielsantacruz/Documents/React/techtrack-app/src --include=*.css -l)",
+      "Bash(grep -r \"tt-accent\\\\|tt-green\\\\|tt-yellow\\\\|tt-red\" /Users/danielsantacruz/Documents/React/techtrack-app/src --include=*.css)",
+      "Bash(find /Users/danielsantacruz/Documents/React/techtrack-app/src -name *inance* -o -name *deprecat*)",
+      "Bash(firebase functions:secrets:set RESEND_API_KEY)",
+      "Bash(npx ESLINT_USE_FLAT_CONFIG=false eslint --ext .js,.ts . --fix)",
+      "Bash(ESLINT_USE_FLAT_CONFIG=false ./node_modules/.bin/eslint --ext .js,.ts . --fix)",
+      "Bash(ls:*)",
+      "Bash(ESLINT_USE_FLAT_CONFIG=false ./node_modules/.bin/eslint --ext .js,.ts .)",
+      "Bash(pdftoppm -r 150 -png /Users/danielsantacruz/Desktop/download.pdf /tmp/qr_print)",
+      "Read(//private/tmp/**)"
     ]
   }
 }

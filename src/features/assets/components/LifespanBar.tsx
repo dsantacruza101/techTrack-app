@@ -1,43 +1,49 @@
-import { ProgressBar } from 'primereact/progressbar'
 import type { Timestamp } from 'firebase/firestore'
 import { getLifespanPercent } from '../types/asset.types'
 
 interface LifespanBarProps {
-  purchaseDate: Timestamp
+  purchaseDate:  Timestamp
   lifespanYears: number
+  showText?:     boolean
 }
 
-// const COLOR: Record<string, string> = {
-//   good:    'var(--green-500)',
-//   aging:   'var(--yellow-500)',
-//   replace: 'var(--red-500)',
-// }
-
-const LifespanBar = ({ purchaseDate, lifespanYears }: LifespanBarProps) => {
-  const pct = getLifespanPercent(purchaseDate, lifespanYears)
+const LifespanBar = ({ purchaseDate, lifespanYears, showText = true }: LifespanBarProps) => {
+  const pct   = getLifespanPercent(purchaseDate, lifespanYears)
   const value = Math.round(pct * 100)
-  
-  // Determinamos el color según el mockup: Verde -> Naranja -> Rojo
-  const getBarColor = () => {
-    if (value >= 90) return '#ef4444' // Rojo crítico
-    if (value >= 70) return '#f59e0b' // Naranja/Aging
-    return '#22c55e' // Verde saludable
-  }
+
+  const color = value >= 90 ? '#ef4444' : value >= 70 ? '#f59e0b' : '#22c55e'
+
+  const replaceDate = new Date(purchaseDate.toDate())
+  replaceDate.setFullYear(replaceDate.getFullYear() + lifespanYears)
+  const yearsLeft   = Math.max(0, (replaceDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 365.25))
+  const remainText  = value >= 100
+    ? 'Exceeded'
+    : yearsLeft < 1
+      ? `${Math.round(yearsLeft * 12)}mo left`
+      : `${yearsLeft.toFixed(1)}yr left`
 
   return (
-    <ProgressBar
-      value={value}
-      showValue={false}
-      style={{ height: 4, background: 'var(--surface-border)' }}
-      pt={{
-        value: { 
-          style: { 
-            background: getBarColor(), 
-            boxShadow: `0 0 8px ${getBarColor()}66` // Efecto glow sutil
-          } 
-        }
-      }}
-    />
+    <div style={{ minWidth: 110 }}>
+      <div style={{ height: 4, background: 'var(--surface-border)', borderRadius: 99, overflow: 'hidden' }}>
+        <div
+          style={{
+            height:       '100%',
+            width:        `${Math.min(value, 100)}%`,
+            background:   color,
+            borderRadius: 99,
+            boxShadow:    `0 0 6px ${color}55`,
+            transition:   'width 0.3s',
+          }}
+        />
+      </div>
+
+      {showText && (
+        <div className="flex align-items-center justify-content-between mt-1">
+          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color }}>{value}%</span>
+          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text-color-secondary)' }}>{remainText}</span>
+        </div>
+      )}
+    </div>
   )
 }
 

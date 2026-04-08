@@ -6,74 +6,61 @@ interface MetricsRowProps {
 }
 
 interface MetricCardProps {
-  label: string
-  value: number
-  icon: string
-  iconColor: string
-  iconBg: string
+  label:     string
+  value:     number
+  icon:      string
+  color:     string
+  subtitle?: string
 }
 
-const MetricCard = ({ label, value, icon, iconColor }: MetricCardProps) => (
+const MetricCard = ({ label, value, icon, color, subtitle }: MetricCardProps) => (
   <div
-    className="flex flex-column gap-3 border-round-xl p-3 flex-1 relative overflow-hidden"
-    style={{ background: 'var(--surface-card)', border: '1px solid var(--surface-border)' }}
+    className="flex flex-column flex-1 relative overflow-hidden"
+    style={{
+      background:   'var(--surface-card)',
+      border:       '1px solid var(--surface-border)',
+      borderRadius: 12,
+      padding:      '16px 18px',
+      borderTop:    `3px solid ${color}`,
+      minWidth:     0,
+      transition:   'border-color 0.2s',
+    }}
   >
-    {/* La línea de acento superior del mockup */}
-    <div className="absolute top-0 left-0 w-full h-2px" style={{ background: iconColor }} />
-    
-    <div className="flex justify-content-between align-items-start">
-      <div>
-        <div className="text-4xl font-bold text-900 line-height-1">{value}</div>
-        <div className="text-xs font-medium uppercase tracking-wider mt-2 text-500">{label}</div>
-      </div>
-      <i className={`${icon} text-xl opacity-50`} style={{ color: iconColor }} />
+    <i
+      className={icon}
+      style={{ position: 'absolute', right: 14, top: 14, fontSize: 18, color, opacity: 0.15 }}
+    />
+    <div
+      className="font-mono uppercase mb-2"
+      style={{ fontSize: 10, letterSpacing: '2px', color: 'var(--text-color-secondary)' }}
+    >
+      {label}
     </div>
+    <div className="font-serif font-bold text-900" style={{ fontSize: 32, lineHeight: 1 }}>
+      {value}
+    </div>
+    {subtitle && (
+      <div className="text-xs mt-1" style={{ color: 'var(--text-color-secondary)' }}>
+        {subtitle}
+      </div>
+    )}
   </div>
 )
 
 const MetricsRow = ({ assets }: MetricsRowProps) => {
-  const active      = assets.filter(a => (a.status ?? 'active') === 'active').length
-  const maintenance = assets.filter(a => (a.status ?? 'active') === 'maintenance').length
-  const storage     = assets.filter(a => (a.status ?? 'active') === 'storage').length
+  const total       = assets.length
+  const active      = assets.filter(a => a.status === 'active').length
+  const maintenance = assets.filter(a => a.status === 'maintenance').length
+  const storage     = assets.filter(a => a.status === 'storage').length
   const replaceSoon = assets.filter(a => getLifespanStatus(a.purchaseDate, a.lifespanYears) === 'replace').length
 
   return (
-    <div className="flex gap-3 flex-wrap">
-      <MetricCard
-        label="Total Assets"
-        value={assets.length}
-        icon="pi pi-server"
-        iconColor="#4f8fff"
-        iconBg="rgba(79,143,255,0.15)"
-      />
-      <MetricCard
-        label="Active"
-        value={active}
-        icon="pi pi-check-circle"
-        iconColor="#22c55e"
-        iconBg="rgba(34,197,94,0.15)"
-      />
-      <MetricCard
-        label="Maintenance"
-        value={maintenance}
-        icon="pi pi-wrench"
-        iconColor="#f59e0b"
-        iconBg="rgba(245,158,11,0.15)"
-      />
-      <MetricCard
-        label="Replace Soon"
-        value={replaceSoon}
-        icon="pi pi-exclamation-triangle"
-        iconColor="#ef4444"
-        iconBg="rgba(239,68,68,0.15)"
-      />
-      <MetricCard
-        label="In Storage"
-        value={storage}
-        icon="pi pi-inbox"
-        iconColor="#06b6d4"
-        iconBg="rgba(6,182,212,0.15)"
-      />
+    <div className="flex gap-3 flex-wrap" style={{ minWidth: 0 }}>
+      <MetricCard label="Total Assets" value={total}       icon="pi pi-server"              color="#4f8fff" subtitle="in inventory"   />
+      <MetricCard label="Active"       value={active}      icon="pi pi-check-circle"         color="#22c55e" subtitle="in use"         />
+      <MetricCard label="Maintenance"  value={maintenance} icon="pi pi-wrench"               color="#f59e0b" subtitle="being serviced" />
+      <MetricCard label="Replace Soon" value={replaceSoon} icon="pi pi-exclamation-triangle" color="#ef4444" subtitle="≥75% lifespan"  />
+      <MetricCard label="In Storage"   value={storage}     icon="pi pi-inbox"                color="#7c3aed" subtitle="not deployed"   />
     </div>
   )
 }

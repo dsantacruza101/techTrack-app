@@ -15,21 +15,26 @@ export interface Asset {
   brand: string
   model: string
   categoryId: string
+  subcategoryId: string
+  school: string
   status: AssetStatus
   serialNumber: string
   assetTag: string
   purchaseDate: Timestamp
   purchasePrice: number
+  estimatedValue: number
   lifespanYears: number
+  warrantyExpiry: Timestamp | null
   assignedTo: string
   location: string
   notes: string
+  careCompletions: Record<string, Timestamp>
   isDeleted: boolean
   createdAt: Timestamp
   updatedAt: Timestamp
 }
 
-export type AssetFormData = Omit<Asset, 'id' | 'isDeleted' | 'createdAt' | 'updatedAt'>
+export type AssetFormData = Omit<Asset, 'id' | 'isDeleted' | 'createdAt' | 'updatedAt' | 'careCompletions'>
 
 // ── Lifespan status ───────────────────────────────────────────────
 export type LifespanStatus = 'good' | 'aging' | 'replace'

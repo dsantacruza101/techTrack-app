@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { Sidebar as PrimeDrawer } from 'primereact/sidebar'
 import Sidebar from './components/Sidebar/Sidebar'
 import Topbar from './components/Topbar/Topbar'
+import MainTabBar from './components/MainTabBar/MainTabBar'
 import './AppLayout.css'
 
 const AppLayout = () => {
@@ -33,9 +34,10 @@ const AppLayout = () => {
       {/* Área Principal */}
       <div className="tt-main flex flex-column flex-1 min-h-screen">
         <Topbar onMenuToggle={() => setDrawerOpen(true)} />
-        <main className="p-4 md:p-6 lg:p-8"> {/* Padding responsivo */}
-          <div className="mx-auto" style={{ maxWidth: '1400px' }}> {/* Contenedor de ancho máximo */}
-             <Outlet />
+        <MainTabBar />
+        <main className="flex-1">
+          <div className="mx-auto tt-page-content" >
+            <Outlet />
           </div>
         </main>
       </div>
