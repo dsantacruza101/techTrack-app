@@ -55,12 +55,22 @@ const MetricsRow = ({ assets }: MetricsRowProps) => {
   const replaceSoon = assets.filter(a => getLifespanStatus(a.purchaseDate, a.lifespanYears) === 'replace').length
 
   return (
-    <div className="flex gap-3 flex-wrap" style={{ minWidth: 0 }}>
-      <MetricCard label="Total Assets" value={total}       icon="pi pi-server"              color="#4f8fff" subtitle="in inventory"   />
-      <MetricCard label="Active"       value={active}      icon="pi pi-check-circle"         color="#22c55e" subtitle="in use"         />
-      <MetricCard label="Maintenance"  value={maintenance} icon="pi pi-wrench"               color="#f59e0b" subtitle="being serviced" />
-      <MetricCard label="Replace Soon" value={replaceSoon} icon="pi pi-exclamation-triangle" color="#ef4444" subtitle="≥75% lifespan"  />
-      <MetricCard label="In Storage"   value={storage}     icon="pi pi-inbox"                color="#7c3aed" subtitle="not deployed"   />
+    <div className="grid">
+      <div className="col-12 sm:col-6 md:col-4 lg:col-2">
+        <MetricCard label="Total Assets" value={total}       icon="pi pi-server"              color="#4f8fff" subtitle="in inventory"   />
+      </div>
+      <div className="col-12 sm:col-6 md:col-4 lg:col-2">
+        <MetricCard label="Active"       value={active}      icon="pi pi-check-circle"         color="#22c55e" subtitle="in use"         />
+      </div>
+      <div className="col-12 sm:col-6 md:col-4 lg:col-2">
+        <MetricCard label="Maintenance"  value={maintenance} icon="pi pi-wrench"               color="#f59e0b" subtitle="being serviced" />
+      </div>
+      <div className="col-12 sm:col-6 md:col-4 lg:col-2">
+        <MetricCard label="Replace Soon" value={replaceSoon} icon="pi pi-exclamation-triangle" color="#ef4444" subtitle="≥75% lifespan"  />
+      </div>
+      <div className="col-12 sm:col-6 md:col-4 lg:col-2">
+        <MetricCard label="In Storage"   value={storage}     icon="pi pi-inbox"                color="#7c3aed" subtitle="not deployed"   />
+      </div>
     </div>
   )
 }

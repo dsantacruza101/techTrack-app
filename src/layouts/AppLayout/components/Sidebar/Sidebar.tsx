@@ -111,7 +111,7 @@ const Sidebar = ({ onNavClick, onAddAsset }: SidebarProps) => {
       </nav>
 
       {/* ── Footer ─────────────────────────────────────── */}
-      <div className="px-3 py-3 border-top-1 border-white-alpha-10 flex flex-column gap-2">
+      <div className="px-3 py-3 border-top-1 border-white-alpha-10 flex-column gap-2 hidden md:flex">
 
         {/* Add Asset button */}
         {can('add_asset') && (

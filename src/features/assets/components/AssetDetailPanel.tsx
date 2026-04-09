@@ -114,7 +114,7 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
       visible={visible}
       onHide={onHide}
       position="right"
-      style={{ width: '380px' }}
+      className="w-full md:w-25rem"
       dismissable
       blockScroll
       pt={{

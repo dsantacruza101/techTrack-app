@@ -1,90 +1,69 @@
-import { useNavigate, useLocation } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { usePermissions } from '../../../../features/auth/hooks/usePermissions'
+import './MainTabBar.css'
 
 interface Tab {
   label: string
-  emoji: string
+  icon: string
   to: string
   requiredPermission?: Parameters<ReturnType<typeof usePermissions>['can']>[0]
   superAdminOnly?: boolean
 }
 
-const TABS: Tab[] = [
-  { label: 'Assets',                emoji: '📦', to: '/assets'                                                },
-  { label: 'Preventive Care',       emoji: '🔧', to: '/preventive-care'                                      },
-  { label: 'Work Orders',           emoji: '📋', to: '/work-orders'                                          },
-  { label: 'IT Management',         emoji: '🖥',  to: '/it-management'                                       },
-  { label: 'Inventory',             emoji: '🗃',  to: '/inventory'                                           },
-  { label: 'Finance & Depreciation',emoji: '💰', to: '/finance',        requiredPermission: 'view_finance'   },
-  { label: 'Analytics',             emoji: '📈', to: '/analytics',      requiredPermission: 'view_reports'   },
-  { label: 'Reports',               emoji: '📊', to: '/reports',        requiredPermission: 'view_reports'   },
-  { label: 'Map View',              emoji: '🗺',  to: '/map'                                                 },
-  { label: 'Mobile & QR',           emoji: '📱', to: '/mobile-qr'                                           },
-  { label: 'Options',               emoji: '⚙',  to: '/options',       requiredPermission: 'manage_settings' },
+const DESKTOP_TABS: Tab[] = [
+  { label: 'Assets',           icon: 'pi pi-box',      to: '/assets' },
+  { label: 'Preventive Care',  icon: 'pi pi-wrench',   to: '/preventive-care' },
+  { label: 'Work Orders',      icon: 'pi pi-clipboard',to: '/work-orders' },
+  { label: 'IT Management',    icon: 'pi pi-desktop',  to: '/it-management' },
+  { label: 'Inventory',        icon: 'pi pi-inbox',    to: '/inventory' },
+  { label: 'Finance',          icon: 'pi pi-dollar',   to: '/finance',   requiredPermission: 'view_finance' },
+  { label: 'Analytics',        icon: 'pi pi-chart-line', to: '/analytics', requiredPermission: 'view_reports' },
+  { label: 'Reports',          icon: 'pi pi-chart-bar',  to: '/reports', requiredPermission: 'view_reports' },
+  { label: 'Map',              icon: 'pi pi-map',      to: '/map' },
+  { label: 'Mobile & QR',      icon: 'pi pi-mobile',   to: '/mobile-qr' },
+  { label: 'Options',          icon: 'pi pi-cog',      to: '/options',  requiredPermission: 'manage_settings' },
+]
+
+const MOBILE_TABS: Tab[] = [
+  { label: 'Assets',      icon: 'pi pi-box',       to: '/assets' },
+  { label: 'Orders',      icon: 'pi pi-clipboard', to: '/work-orders' },
+  { label: 'Inventory',   icon: 'pi pi-inbox',     to: '/inventory' },
+  { label: 'Map',         icon: 'pi pi-map',       to: '/map' },
+  { label: 'Mobile',      icon: 'pi pi-mobile',    to: '/mobile-qr' },
 ]
 
 const MainTabBar = () => {
-  const navigate   = useNavigate()
-  const location   = useLocation()
-  const { can }    = usePermissions()
+  const { can } = usePermissions()
 
-  const visibleTabs = TABS.filter(tab => {
+  const filterVisibleTabs = (tabs: Tab[]) => tabs.filter(tab => {
     if (tab.superAdminOnly) return can('manage_integrations')
     if (tab.requiredPermission) return can(tab.requiredPermission)
     return true
   })
 
-  return (
-    <div
-      style={{
-        position: 'sticky',
-        top: '62px',       // sits just below the topbar (62px)
-        zIndex: 45,
-        background: 'var(--surface-card)',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
-        display: 'flex',
-        gap: 2,
-        padding: '0 28px',
-        overflowX: 'auto',
-        scrollbarWidth: 'none',
-        flexShrink: 0,
-      }}
-    >
-      {visibleTabs.map(tab => {
-        const isActive = location.pathname === tab.to
+  const desktopTabs = filterVisibleTabs(DESKTOP_TABS)
+  const mobileTabs = filterVisibleTabs(MOBILE_TABS)
 
-        return (
-          <button
-            key={tab.to}
-            onClick={() => navigate(tab.to)}
-            style={{
-              display:         'flex',
-              alignItems:      'center',
-              gap:             6,
-              padding:         '11px 14px',
-              fontSize:        13,
-              fontWeight:      500,
-              fontFamily:      'inherit',
-              color:           isActive ? 'var(--primary-color)' : 'var(--text-color-secondary)',
-              background:      'transparent',
-              border:          'none',
-              borderBottom:    isActive ? '2px solid var(--primary-color)' : '2px solid transparent',
-              marginBottom:    -1,
-              cursor:          'pointer',
-              whiteSpace:      'nowrap',
-              userSelect:      'none',
-              transition:      'color 0.15s, border-color 0.15s',
-              outline:         'none',
-            }}
-            onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-color)' }}
-            onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-color-secondary)' }}
-          >
-            <span style={{ fontSize: 14 }}>{tab.emoji}</span>
-            {tab.label}
-          </button>
-        )
-      })}
-    </div>
+  return (
+    <>
+      <nav className="tt-tabbar-desktop hidden md:flex" aria-label="Primary sections">
+        {desktopTabs.map(tab => (
+          <NavLink key={tab.to} to={tab.to} className="tt-tabbar-link">
+            <i className={tab.icon} />
+            <span>{tab.label}</span>
+          </NavLink>
+        ))}
+      </nav>
+
+      <nav className="tt-tabbar-mobile md:hidden" aria-label="Mobile primary sections">
+        {mobileTabs.map(tab => (
+          <NavLink key={tab.to} to={tab.to} className="tt-tabbar-mobile-link">
+            <i className={tab.icon} />
+            <span>{tab.label}</span>
+          </NavLink>
+        ))}
+      </nav>
+    </>
   )
 }
 

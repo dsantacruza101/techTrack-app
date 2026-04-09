@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Timestamp } from 'firebase/firestore'
 import { createPortal } from 'react-dom'
 import { useSearchParams, useNavigate } from 'react-router-dom'
@@ -421,50 +421,79 @@ const AssetsPage = () => {
   // ── Topbar portal actions ────────────────────────────────────────
   const topbarSlot = typeof document !== 'undefined' ? document.getElementById('tt-topbar-actions') : null
 
-  const tbBtn: React.CSSProperties = {
-    display: 'flex', alignItems: 'center', gap: 6,
-    padding: '7px 14px', borderRadius: 8,
-    background: 'var(--surface-section)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    color: 'var(--text-color)', fontFamily: 'inherit',
-    fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap',
-  }
-
   const topbarActions = (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div className="flex align-items-center gap-2">
       {/* Search */}
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-        <i className="pi pi-search" style={{ position: 'absolute', left: 11, fontSize: 13, color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' }} />
+      <div className="p-icon-field p-icon-field-left" style={{ width: 280, maxWidth: '100%' }}>
+        <i className="pi pi-search p-input-icon" />
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search assets..."
-          style={{
-            width: 280, paddingLeft: 32, paddingRight: 12, paddingTop: 7, paddingBottom: 7,
-            background: 'var(--surface-section)', border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: 8, color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13,
-            outline: 'none', boxSizing: 'border-box',
-          }}
-          onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-          onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+          className="p-inputtext p-component w-full"
         />
       </div>
       {/* Export */}
       {can('export_csv') && (
-        <button type="button" style={{ ...tbBtn, opacity: visibleAssets.length === 0 ? 0.4 : 1 }} onClick={handleExportCSV} disabled={visibleAssets.length === 0}>
-          <i className="pi pi-download" style={{ fontSize: 13 }} /> Export
-        </button>
+        <Button
+          icon="pi pi-download"
+          label="Export"
+          className="tt-toolbar-btn hidden md:flex"
+          disabled={visibleAssets.length === 0}
+          onClick={handleExportCSV}
+        />
       )}
       {/* Print */}
-      <button type="button" style={tbBtn} onClick={() => window.print()}>
-        <i className="pi pi-print" style={{ fontSize: 13 }} /> Print
-      </button>
+      <Button
+        icon="pi pi-print"
+        label="Print"
+        className="tt-toolbar-btn hidden md:flex"
+        onClick={() => window.print()}
+      />
       {/* Add Asset */}
       {can('add_asset') && (
-        <button type="button" onClick={openCreate} style={{ ...tbBtn, background: 'var(--primary-color)', border: '1px solid var(--primary-color)', color: '#fff', fontWeight: 600 }}>
-          + Add Asset
-        </button>
+        <Button
+          icon="pi pi-plus"
+          label="Add Asset"
+          className="tt-toolbar-btn tt-toolbar-btn-primary hidden md:flex"
+          onClick={openCreate}
+        />
       )}
+    </div>
+  )
+
+  const mobileToolbar = (
+    <div className="md:hidden flex flex-column gap-2">
+      <div className="p-icon-field p-icon-field-left w-full">
+        <i className="pi pi-search p-input-icon" />
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search assets..."
+          className="p-inputtext p-component w-full"
+        />
+      </div>
+
+      <div className="flex gap-2 flex-wrap">
+        {can('add_asset') && (
+          <Button icon="pi pi-plus" label="Add Asset" className="tt-toolbar-btn tt-toolbar-btn-primary flex-1" onClick={openCreate} />
+        )}
+        {can('export_csv') && (
+          <Button
+            icon="pi pi-download"
+            label="Export"
+            className="tt-toolbar-btn flex-1"
+            disabled={visibleAssets.length === 0}
+            onClick={handleExportCSV}
+          />
+        )}
+        <Button
+          icon="pi pi-print"
+          label="Print"
+          className="tt-toolbar-btn flex-1"
+          onClick={() => window.print()}
+        />
+      </div>
     </div>
   )
 
@@ -475,6 +504,8 @@ const AssetsPage = () => {
 
       {/* ── Topbar actions portal ────────────────────────────────────── */}
       {topbarSlot && createPortal(topbarActions, topbarSlot)}
+
+      {mobileToolbar}
 
       {/* ── School banner ────────────────────────────────────────────── */}
       <SchoolBanner
@@ -517,27 +548,29 @@ const AssetsPage = () => {
       )}
 
       {/* ── Table ───────────────────────────────────────────────────── */}
-      <DataTable
-        value={[...visibleAssets].sort((a, b) => getLifespanPercent(b.purchaseDate, b.lifespanYears) - getLifespanPercent(a.purchaseDate, a.lifespanYears))}
-        loading={loading}
-        emptyMessage="No assets found."
-        rowClassName={(row: Asset) => row.isDeleted ? 'tt-row-disabled' : ''}
-        onRowClick={e => setDetailAsset(e.data as Asset)}
-        stripedRows
-        showGridlines={false}
-        style={{ borderRadius: '12px', overflow: 'hidden', cursor: 'pointer' }}
-      >
-        <Column header="Asset"       body={nameTemplate}      style={{ minWidth: 240 }} />
-        <Column header="Status"      body={statusTemplate}    style={{ minWidth: 120 }} />
-        <Column header="School"      body={schoolTemplate}    style={{ minWidth: 70 }}  />
-        <Column header="Category"    body={categoryTemplate}  style={{ minWidth: 120 }} />
-        <Column field="assignedTo"   header="Assigned To"     style={{ minWidth: 140 }} body={(row: Asset) => row.assignedTo ? <span className="text-sm">{row.assignedTo}</span> : <span className="text-sm" style={{ opacity: 0.4 }}>—</span>} />
-        <Column field="location"     header="Location"        style={{ minWidth: 130 }} body={(row: Asset) => row.location ? <span className="text-sm">{row.location}</span> : <span className="text-sm" style={{ opacity: 0.4 }}>—</span>} />
-        <Column header="Lifespan"    body={lifespanTemplate}  style={{ minWidth: 160 }} />
-        <Column header="Next Care"   body={nextCareTemplate}  style={{ minWidth: 110 }} />
-        <Column header="Replace By"  body={replaceByTemplate} style={{ minWidth: 140 }} />
-        <Column header=""            body={actionsTemplate}   style={{ width: 130 }} align="right" />
-      </DataTable>
+      <div className="tt-table-scroll">
+        <DataTable
+          value={[...visibleAssets].sort((a, b) => getLifespanPercent(b.purchaseDate, b.lifespanYears) - getLifespanPercent(a.purchaseDate, a.lifespanYears))}
+          loading={loading}
+          emptyMessage="No assets found."
+          rowClassName={(row: Asset) => row.isDeleted ? 'tt-row-disabled' : ''}
+          onRowClick={e => setDetailAsset(e.data as Asset)}
+          stripedRows
+          showGridlines={false}
+          style={{ borderRadius: '12px', overflow: 'hidden', cursor: 'pointer' }}
+        >
+          <Column header="Asset"       body={nameTemplate}      style={{ minWidth: 240 }} />
+          <Column header="Status"      body={statusTemplate}    style={{ minWidth: 120 }} />
+          <Column header="School"      body={schoolTemplate}    style={{ minWidth: 70 }}  />
+          <Column header="Category"    body={categoryTemplate}  style={{ minWidth: 120 }} />
+          <Column field="assignedTo"   header="Assigned To"     style={{ minWidth: 140 }} body={(row: Asset) => row.assignedTo ? <span className="text-sm">{row.assignedTo}</span> : <span className="text-sm" style={{ opacity: 0.4 }}>—</span>} />
+          <Column field="location"     header="Location"        style={{ minWidth: 130 }} body={(row: Asset) => row.location ? <span className="text-sm">{row.location}</span> : <span className="text-sm" style={{ opacity: 0.4 }}>—</span>} />
+          <Column header="Lifespan"    body={lifespanTemplate}  style={{ minWidth: 160 }} />
+          <Column header="Next Care"   body={nextCareTemplate}  style={{ minWidth: 110 }} />
+          <Column header="Replace By"  body={replaceByTemplate} style={{ minWidth: 140 }} />
+          <Column header=""            body={actionsTemplate}   style={{ width: 130 }} align="right" />
+        </DataTable>
+      </div>
 
       {/* ── Detail panel ────────────────────────────────────────────── */}
       <AssetDetailPanel
@@ -555,7 +588,7 @@ const AssetsPage = () => {
         visible={dialogOpen}
         onHide={() => setDialogOpen(false)}
         header={selected ? 'Edit Asset' : 'Add New Asset'}
-        style={{ width: '680px' }}
+        style={{ width: 'min(680px, calc(100vw - 24px))' }}
         modal
         blockScroll
         draggable={false}

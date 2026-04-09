@@ -463,6 +463,51 @@ body {
 /* Disabled row in DataTable */
 .tt-row-disabled td { opacity: 0.4; }
 
+/* Assets toolbar buttons */
+.tt-toolbar-btn.p-button {
+  background: var(--surface-section) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  color: var(--text-color) !important;
+  border-radius: 10px !important;
+  padding: 0.55rem 0.95rem !important;
+  box-shadow: none !important;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s !important;
+}
+
+.tt-toolbar-btn.p-button:not(:disabled):hover {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.16) !important;
+  transform: translateY(-1px);
+}
+
+.tt-toolbar-btn.p-button:focus {
+  box-shadow: 0 0 0 2px rgba(79,143,255,0.18) !important;
+}
+
+.tt-toolbar-btn.p-button .p-button-label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.tt-toolbar-btn.p-button .p-button-icon {
+  font-size: 13px !important;
+}
+
+.tt-toolbar-btn.p-button:disabled {
+  opacity: 0.45 !important;
+}
+
+.tt-toolbar-btn-primary.p-button {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #fff !important;
+}
+
+.tt-toolbar-btn-primary.p-button:not(:disabled):hover {
+  background: #6299ff !important;
+  border-color: #6299ff !important;
+}
+
 /* ── IconField (search input with icon) ─────────────────────────── */
 .p-icon-field { position: relative; display: flex; width: 100%; }
 .p-icon-field .p-input-icon {
@@ -504,6 +549,10 @@ body {
 /* Page content — tighter padding on mobile */
 @media (max-width: 767px) {
   .tt-page-content { padding: 16px 14px !important; }
+
+  .tt-toolbar-btn.p-button {
+    justify-content: center !important;
+  }
 
   /* Sidebar detail panel — full width */
   .p-sidebar { width: 100vw !important; max-width: 100vw !important; }

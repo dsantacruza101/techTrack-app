@@ -21,10 +21,10 @@ const Topbar = ({ onMenuToggle }: TopbarProps) => {
 
   return (
     <div
-      className="flex align-items-center"
+      className="tt-topbar flex align-items-center"
       style={{
         position: 'sticky', top: 0, zIndex: 50,
-        height: '62px', padding: '0 28px', gap: 12, flexShrink: 0,
+        height: '62px', gap: 12, flexShrink: 0,
         background: 'var(--surface-card)',
         borderBottom: '1px solid rgba(255,255,255,0.08)',
       }}
@@ -41,15 +41,15 @@ const Topbar = ({ onMenuToggle }: TopbarProps) => {
 
       {/* Page title */}
       <div
-        className="font-serif font-bold text-900 flex-shrink-0"
-        style={{ fontSize: 16, whiteSpace: 'nowrap' }}
+        className="font-serif font-bold text-900"
+        style={{ fontSize: 16, whiteSpace: 'nowrap', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}
       >
         {title || 'Facilities TechTrack'}
       </div>
 
       {/* School switcher — right next to title */}
       <div
-        className="flex align-items-center gap-1 flex-shrink-0"
+        className="align-items-center gap-1 flex-shrink-0 hidden md:flex"
         style={{
           background: 'var(--surface-section)',
           borderRadius: 8,
@@ -84,7 +84,7 @@ const Topbar = ({ onMenuToggle }: TopbarProps) => {
       {/* Portal slot — pages inject their action buttons here */}
       <div
         id="tt-topbar-actions"
-        className="flex align-items-center gap-2 flex-1 justify-content-end"
+        className="hidden md:flex align-items-center gap-2 flex-1 justify-content-end"
         style={{ minWidth: 0, overflow: 'hidden' }}
       />
 
