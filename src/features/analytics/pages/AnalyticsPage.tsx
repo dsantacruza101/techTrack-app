@@ -168,11 +168,23 @@ const AnalyticsPage = () => {
 
   const card = (style: React.CSSProperties = {}): React.CSSProperties => ({
     background: 'var(--surface-card)',
-    border: '1px solid rgba(255,255,255,0.08)',
+    border: '1px solid var(--tt-border-soft)',
     borderRadius: 12,
     padding: 20,
     ...style,
   })
+
+  const controlStyle: React.CSSProperties = {
+    background: 'var(--surface-card)',
+    border: '1px solid var(--tt-border)',
+    borderRadius: 8,
+    padding: '7px 12px',
+    color: 'var(--text-color)',
+    fontSize: 13,
+    fontFamily: 'inherit',
+    outline: 'none',
+    cursor: 'pointer',
+  }
 
   // ── Render ─────────────────────────────────────────────────────────
   return (
@@ -190,26 +202,14 @@ const AnalyticsPage = () => {
           <select
             value={period}
             onChange={e => setPeriod(Number(e.target.value))}
-            style={{
-              background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 8, padding: '7px 12px', color: 'var(--text-color)',
-              fontSize: 13, fontFamily: 'inherit', outline: 'none', colorScheme: 'dark', cursor: 'pointer',
-            }}
+            style={controlStyle}
           >
             <option value={30}>Last 30 days</option>
             <option value={90}>Last 3 months</option>
             <option value={180}>Last 6 months</option>
             <option value={365}>Last 12 months</option>
           </select>
-          <button
-            onClick={handleExport}
-            style={{
-              background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 8, padding: '7px 14px', color: 'var(--text-color)',
-              fontSize: 13, fontFamily: 'inherit', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 6,
-            }}
-          >
+          <button onClick={handleExport} style={{ ...controlStyle, display: 'flex', alignItems: 'center', gap: 6 }}>
             <i className="pi pi-download" style={{ fontSize: 12 }} />
             Export Report
           </button>
@@ -242,23 +242,20 @@ const AnalyticsPage = () => {
 
       {/* Two bar charts */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-
         <div style={card()}>
-          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 16 }}>🪄 Estimated Maintenance Cost by Month</div>
+          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 16, color: 'var(--text-color)' }}>🪄 Estimated Maintenance Cost by Month</div>
           <BarChart data={monthlyData.map(d => ({ label: d.label, value: d.cost }))} color="#4f8fff" />
         </div>
-
         <div style={card()}>
-          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 16 }}>🔧 Work Orders by Month</div>
+          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 16, color: 'var(--text-color)' }}>🔧 Work Orders by Month</div>
           <BarChart data={monthlyData.map(d => ({ label: d.label, value: d.count }))} color="#f59e0b" />
         </div>
       </div>
 
       {/* Labor hours + Efficiency score */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-
         <div style={card()}>
-          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 16 }}>⏱ Labor Hours Estimate by Category</div>
+          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 16, color: 'var(--text-color)' }}>⏱ Labor Hours Estimate by Category</div>
           {laborByCategory.length === 0
             ? <div style={{ fontSize: 13, color: 'var(--text-color-secondary)', textAlign: 'center', padding: '20px 0' }}>Add care tasks to see estimates.</div>
             : laborByCategory.map(c => (
@@ -267,9 +264,8 @@ const AnalyticsPage = () => {
               ))
           }
         </div>
-
         <div style={card()}>
-          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 16 }}>⚡ Operational Efficiency Score</div>
+          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 16, color: 'var(--text-color)' }}>⚡ Operational Efficiency Score</div>
           {effByCategory.length === 0
             ? <div style={{ fontSize: 13, color: 'var(--text-color-secondary)', textAlign: 'center', padding: '20px 0' }}>No data yet.</div>
             : effByCategory.map(c => (
@@ -282,13 +278,13 @@ const AnalyticsPage = () => {
 
       {/* Maintenance Cost Breakdown table */}
       <div style={{ ...card({ padding: 0 }), overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ fontWeight: 600, fontSize: 14 }}>📋 Maintenance Cost Breakdown</div>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--tt-border-soft)' }}>
+          <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-color)' }}>📋 Maintenance Cost Breakdown</div>
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+              <tr style={{ borderBottom: '1px solid var(--tt-border-soft)' }}>
                 {['CATEGORY', 'ASSETS', 'WORK ORDERS', 'EST. COST (WOs)', 'CARE TASKS DUE', 'AVG ASSET AGE', 'EFFICIENCY'].map(h => (
                   <th key={h} style={{
                     padding: '10px 16px', textAlign: 'left',
@@ -304,7 +300,7 @@ const AnalyticsPage = () => {
                 <tr><td colSpan={7} style={{ padding: 32, textAlign: 'center', fontSize: 13, color: 'var(--text-color-secondary)' }}>No data available yet.</td></tr>
               )}
               {breakdown.map((row, i) => (
-                <tr key={row.name} style={{ borderBottom: i < breakdown.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                <tr key={row.name} style={{ borderBottom: i < breakdown.length - 1 ? '1px solid var(--tt-border-faint)' : 'none' }}>
                   <td style={{ padding: '12px 16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <i className={row.icon} style={{ fontSize: 14, color: 'var(--text-color-secondary)' }} />

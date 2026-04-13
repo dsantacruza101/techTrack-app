@@ -62,6 +62,48 @@ const CategoryForm = ({ initial, saving, onSave, onCancel }: CategoryFormProps) 
         <ColorSelector value={form.colorKey as ColorKey} onChange={(v) => set('colorKey', v)} />
       </div>
 
+      {/* Subcategories */}
+      <div className="flex flex-column gap-2">
+        <FieldLabel>Subcategories</FieldLabel>
+        <div className="flex flex-column gap-2">
+          {form.subcategories.map((sub, i) => (
+            <div key={i} className="flex align-items-center gap-2">
+              <InputText
+                value={sub}
+                onChange={e => {
+                  const updated = [...form.subcategories]
+                  updated[i] = e.target.value
+                  set('subcategories', updated)
+                }}
+                placeholder={`Subcategory ${i + 1}`}
+                className="w-full"
+              />
+              <Button
+                type="button"
+                icon="pi pi-times"
+                severity="danger"
+                text
+                rounded
+                style={{ flexShrink: 0 }}
+                onClick={() => set('subcategories', form.subcategories.filter((_, j) => j !== i))}
+              />
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => set('subcategories', [...form.subcategories, ''])}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px',
+              borderRadius: 8, background: 'transparent', border: '1px dashed var(--surface-border)',
+              color: 'var(--text-color-secondary)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer',
+              alignSelf: 'flex-start',
+            }}
+          >
+            <i className="pi pi-plus" style={{ fontSize: 11 }} /> Add subcategory
+          </button>
+        </div>
+      </div>
+
       {/* Preview */}
       <div className="flex flex-column gap-2">
         <FieldLabel>Preview</FieldLabel>

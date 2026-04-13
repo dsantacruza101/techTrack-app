@@ -1,9 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Button } from 'primereact/button'
 import { Dialog } from 'primereact/dialog'
-import { InputText } from 'primereact/inputtext'
-import { Dropdown } from 'primereact/dropdown'
-import { InputTextarea } from 'primereact/inputtextarea'
 import { useITTickets } from '../hooks/useITTickets'
 import { useITTicketMutations } from '../hooks/useITTicketMutations'
 import { useAssets } from '../../assets/hooks/useAssets'
@@ -43,17 +39,25 @@ const PillBadge = ({ bg, color, label }: { bg: string; color: string; label: str
 )
 
 const FieldLabel = ({ children }: { children: React.ReactNode }) => (
-  <label className="font-mono text-xs" style={{ letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-color-secondary)' }}>
+  <label style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' as const, color: 'var(--tt-text-muted)' }}>
     {children}
   </label>
 )
+
+const fieldInput: React.CSSProperties = {
+  width: '100%', background: 'var(--tt-bg-input)', border: '1px solid var(--tt-border)',
+  borderRadius: 9, padding: '10px 13px', color: 'var(--text-color)',
+  fontFamily: 'inherit', fontSize: 13, outline: 'none', boxSizing: 'border-box',
+}
+const fieldSelect: React.CSSProperties = {
+  ...fieldInput, appearance: 'auto' as const, cursor: 'pointer',
+}
 
 const IT_CATEGORY_ICONS: Record<string, string> = {
   hardware: '🖥', software: '💿', network: '📡',
   account: '🔐', printer: '🖨', setup: '⚙️', other: '🎫',
 }
 
-// IT-related category IDs (customize if needed)
 const IT_CAT_IDS = new Set(['mac', 'macpro', 'ipad', 'chromebook', 'network', 'printer', 'projector', 'accessory', 'security'])
 
 const ITManagementPage = () => {
@@ -102,7 +106,6 @@ const ITManagementPage = () => {
     resolved: tickets.filter(t => t.status === 'resolved').length,
   }), [tickets, assets, itAssets])
 
-  // Group IT assets by category for display
   const assetsByCategory = useMemo(() => {
     const groups: Record<string, typeof assets> = {}
     for (const a of itAssets) {
@@ -121,6 +124,19 @@ const ITManagementPage = () => {
     { label: 'Resolved',        value: counts.resolved, color: '#22c55e', icon: 'pi pi-check-circle' },
   ]
 
+  const panelStyle: React.CSSProperties = {
+    background: 'var(--surface-card)',
+    border: '1px solid var(--tt-border-soft)',
+    borderRadius: 12,
+    overflow: 'hidden',
+  }
+
+  const panelHeaderStyle: React.CSSProperties = {
+    display: 'flex', alignItems: 'center', gap: 8,
+    padding: '12px 16px',
+    borderBottom: '1px solid var(--tt-border-soft)',
+  }
+
   return (
     <div className="flex flex-column gap-4">
 
@@ -133,7 +149,9 @@ const ITManagementPage = () => {
           </div>
         </div>
         {can('submit_it_ticket') && (
-          <Button label="+ New IT Ticket" icon="pi pi-plus" onClick={openNew} />
+          <button type="button" onClick={openNew} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, background: 'var(--primary-color)', border: 'none', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            <i className="pi pi-plus" style={{ fontSize: 12 }} /> New IT Ticket
+          </button>
         )}
       </div>
 
@@ -142,7 +160,7 @@ const ITManagementPage = () => {
         {METRICS.map(m => (
           <div key={m.label}
             className="flex flex-column flex-1 relative overflow-hidden"
-            style={{ background: 'var(--surface-card)', border: '1px solid var(--surface-border)', borderRadius: 12, padding: '16px 18px', borderTop: `3px solid ${m.color}`, minWidth: 130 }}
+            style={{ background: 'var(--surface-card)', border: '1px solid var(--tt-border-soft)', borderRadius: 12, padding: '16px 18px', borderTop: `3px solid ${m.color}`, minWidth: 130 }}
           >
             <i className={m.icon} style={{ position: 'absolute', right: 14, top: 14, fontSize: 18, color: m.color, opacity: 0.15 }} />
             <div className="font-mono uppercase mb-2" style={{ fontSize: 10, letterSpacing: '2px', color: 'var(--text-color-secondary)' }}>{m.label}</div>
@@ -155,8 +173,8 @@ const ITManagementPage = () => {
       <div className="tt-two-col">
 
         {/* Left: IT Assets by Type */}
-        <div className="surface-card border-round-xl border-1 border-white-alpha-10 overflow-hidden">
-          <div className="flex align-items-center gap-2 px-4 py-3 border-bottom-1 border-white-alpha-10">
+        <div style={panelStyle}>
+          <div style={panelHeaderStyle}>
             <span style={{ fontSize: 14 }}>🖥</span>
             <span className="font-semibold text-sm text-900">IT Assets by Type</span>
             <span className="font-mono text-xs text-500 ml-1">({itAssets.length})</span>
@@ -207,17 +225,16 @@ const ITManagementPage = () => {
         </div>
 
         {/* Right: Support Tickets */}
-        <div className="surface-card border-round-xl border-1 border-white-alpha-10 overflow-hidden">
-          <div className="flex align-items-center gap-3 px-4 py-3 border-bottom-1 border-white-alpha-10">
+        <div style={panelStyle}>
+          <div style={{ ...panelHeaderStyle, gap: 12 }}>
             <span style={{ fontSize: 14 }}>🎫</span>
             <span className="font-semibold text-sm text-900">Support Tickets</span>
             <span className="font-mono text-xs text-500 ml-1">({tickets.length})</span>
-            <InputText
+            <input
               value={ticketSearch}
               onChange={e => setTicketSearch(e.target.value)}
               placeholder="Search…"
-              className="p-inputtext-sm ml-auto"
-              style={{ width: 160 }}
+              style={{ marginLeft: 'auto', width: 160, background: 'var(--tt-bg-input)', border: '1px solid var(--tt-border)', borderRadius: 8, padding: '6px 10px', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none' }}
             />
           </div>
 
@@ -237,8 +254,8 @@ const ITManagementPage = () => {
                 return (
                   <div
                     key={t.id}
-                    className="border-round-lg border-1 border-white-alpha-10 p-3 cursor-pointer"
-                    style={{ background: 'var(--surface-section)', transition: 'transform 0.12s' }}
+                    className="border-round-lg p-3 cursor-pointer"
+                    style={{ background: 'var(--surface-section)', border: '1px solid var(--tt-border-soft)', transition: 'transform 0.12s' }}
                     onMouseEnter={e => (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'}
                     onMouseLeave={e => (e.currentTarget as HTMLElement).style.transform = ''}
                     onClick={() => can('manage_it_tickets') && openEdit(t)}
@@ -263,7 +280,7 @@ const ITManagementPage = () => {
                           onClick={async e => { e.stopPropagation(); await update(t.id, { status: 'closed' }) }}
                           style={{
                             marginLeft: 'auto', padding: '2px 10px', borderRadius: 6,
-                            background: 'transparent', border: '1px solid rgba(255,255,255,0.15)',
+                            background: 'transparent', border: '1px solid var(--tt-border)',
                             color: 'var(--text-color-secondary)', fontSize: 11, fontFamily: 'inherit',
                             cursor: 'pointer',
                           }}
@@ -273,7 +290,7 @@ const ITManagementPage = () => {
                       )}
                     </div>
                     {t.description && (
-                      <div className="text-xs mt-2" style={{ color: 'var(--text-color-secondary)', borderTop: '1px solid var(--surface-border)', paddingTop: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div className="text-xs mt-2" style={{ color: 'var(--text-color-secondary)', borderTop: '1px solid var(--tt-border-soft)', paddingTop: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {t.description}
                       </div>
                     )}
@@ -295,53 +312,95 @@ const ITManagementPage = () => {
         draggable={false}
         resizable={false}
       >
-        <div className="flex flex-column gap-4 pt-2">
-          <div className="flex flex-column gap-2">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 8 }}>
+          {/* Issue Title */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <FieldLabel>Issue Title *</FieldLabel>
-            <InputText value={form.title} onChange={e => set('title', e.target.value)} placeholder="e.g. Projector not connecting" className="w-full" autoFocus />
-          </div>
-          <div className="grid">
-            <div className="col-6 flex flex-column gap-2">
-              <FieldLabel>Category</FieldLabel>
-              <Dropdown value={form.category} options={TICKET_CATEGORY_OPTIONS} onChange={e => set('category', e.value)} className="w-full" />
-            </div>
-            <div className="col-6 flex flex-column gap-2">
-              <FieldLabel>Priority</FieldLabel>
-              <Dropdown value={form.priority} options={TICKET_PRIORITY_OPTIONS} onChange={e => set('priority', e.value)} className="w-full" />
-            </div>
-          </div>
-          <div className="grid">
-            <div className="col-6 flex flex-column gap-2">
-              <FieldLabel>Status</FieldLabel>
-              <Dropdown value={form.status} options={TICKET_STATUS_OPTIONS} onChange={e => set('status', e.value)} className="w-full" />
-            </div>
-            <div className="col-6 flex flex-column gap-2">
-              <FieldLabel>Linked Asset</FieldLabel>
-              <Dropdown value={form.assetId} options={assetOptions} onChange={e => set('assetId', e.value)} placeholder="Select asset" className="w-full" showClear filter />
-            </div>
-          </div>
-          <div className="grid">
-            <div className="col-6 flex flex-column gap-2">
-              <FieldLabel>Reported By</FieldLabel>
-              <InputText value={form.reportedBy} onChange={e => set('reportedBy', e.target.value)} placeholder="Name" className="w-full" />
-            </div>
-            <div className="col-6 flex flex-column gap-2">
-              <FieldLabel>Location</FieldLabel>
-              <InputText value={form.location} onChange={e => set('location', e.target.value)} placeholder="e.g. Room 204" className="w-full" />
-            </div>
-          </div>
-          <div className="flex flex-column gap-2">
-            <FieldLabel>Description</FieldLabel>
-            <InputTextarea value={form.description} onChange={e => set('description', e.target.value)} rows={3} className="w-full" autoResize />
-          </div>
-          <div className="flex gap-2 justify-content-end">
-            <Button label="Cancel" severity="secondary" outlined onClick={() => setDialogOpen(false)} disabled={saving} />
-            <Button
-              label={saving ? '' : editing ? 'Save Changes' : 'Submit Ticket'}
-              icon={saving ? 'pi pi-spin pi-spinner' : undefined}
-              disabled={saving || !form.title.trim()}
-              onClick={handleSave}
+            <input
+              style={fieldInput} value={form.title} autoFocus
+              onChange={e => set('title', e.target.value)}
+              placeholder="e.g. Projector not connecting"
+              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+              onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
             />
+          </div>
+          {/* Category + Priority */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <FieldLabel>Category</FieldLabel>
+              <select style={fieldSelect} value={form.category} onChange={e => set('category', e.target.value as ITTicketFormData['category'])}>
+                {TICKET_CATEGORY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <FieldLabel>Priority</FieldLabel>
+              <select style={fieldSelect} value={form.priority} onChange={e => set('priority', e.target.value as ITTicketFormData['priority'])}>
+                {TICKET_PRIORITY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+          </div>
+          {/* Status + Linked Asset */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <FieldLabel>Status</FieldLabel>
+              <select style={fieldSelect} value={form.status} onChange={e => set('status', e.target.value as ITTicketFormData['status'])}>
+                {TICKET_STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <FieldLabel>Linked Asset</FieldLabel>
+              <select style={fieldSelect} value={form.assetId} onChange={e => set('assetId', e.target.value)}>
+                <option value="">Select asset</option>
+                {assetOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+          </div>
+          {/* Reported By + Location */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <FieldLabel>Reported By</FieldLabel>
+              <input
+                style={fieldInput} value={form.reportedBy} placeholder="Name"
+                onChange={e => set('reportedBy', e.target.value)}
+                onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+                onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <FieldLabel>Location</FieldLabel>
+              <input
+                style={fieldInput} value={form.location} placeholder="e.g. Room 204"
+                onChange={e => set('location', e.target.value)}
+                onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+                onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
+              />
+            </div>
+          </div>
+          {/* Description */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <FieldLabel>Description</FieldLabel>
+            <textarea
+              style={{ ...fieldInput, resize: 'vertical', minHeight: 90 }}
+              value={form.description} rows={3}
+              onChange={e => set('description', e.target.value)}
+              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
+              onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
+            />
+          </div>
+          {/* Footer */}
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 4 }}>
+            <button
+              type="button" onClick={() => setDialogOpen(false)} disabled={saving}
+              style={{ padding: '7px 14px', borderRadius: 8, background: 'var(--tt-surface-section)', border: '1px solid var(--tt-border)', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.4 : 1 }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button" onClick={handleSave} disabled={saving || !form.title.trim()}
+              style={{ padding: '7px 14px', borderRadius: 8, background: 'var(--primary-color)', border: '1px solid var(--primary-color)', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: saving || !form.title.trim() ? 'not-allowed' : 'pointer', opacity: saving || !form.title.trim() ? 0.4 : 1 }}
+            >
+              {saving ? <><i className="pi pi-spin pi-spinner" style={{ fontSize: 13 }} /> Saving…</> : editing ? 'Save Changes' : 'Submit Ticket'}
+            </button>
           </div>
         </div>
       </Dialog>

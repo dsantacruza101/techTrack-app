@@ -129,10 +129,10 @@ const PreventiveCarePage = () => {
   const logCat = logModalAsset ? categories.find(c => c.id === logModalAsset.categoryId) : null
 
   const FILTERS: { v: CareFilter; l: string; count: number }[] = [
-    { v: 'all',     l: 'All',        count: groups.length         },
-    { v: 'overdue', l: '🔴 Overdue',  count: counts.overdue        },
-    { v: 'soon',    l: '⚠ Due Soon', count: counts.soon           },
-    { v: 'ok',      l: '✅ OK',       count: counts.ok             },
+    { v: 'all',     l: 'All',        count: groups.length  },
+    { v: 'overdue', l: '🔴 Overdue',  count: counts.overdue },
+    { v: 'soon',    l: '⚠ Due Soon', count: counts.soon    },
+    { v: 'ok',      l: '✅ OK',       count: counts.ok      },
   ]
 
   return (
@@ -142,7 +142,7 @@ const PreventiveCarePage = () => {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
         <div>
           <div style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 700, color: 'var(--text-color)' }}>🔧 Preventive Care Schedule</div>
-          <div style={{ fontSize: 13, marginTop: 4, color: 'rgba(255,255,255,0.4)' }}>Maintenance tasks due across all assets</div>
+          <div style={{ fontSize: 13, marginTop: 4, color: 'var(--tt-text-secondary)' }}>Maintenance tasks due across all assets</div>
         </div>
         {/* Filter chips */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -154,9 +154,9 @@ const PreventiveCarePage = () => {
               style={{
                 padding: '6px 14px', borderRadius: 99, fontFamily: 'DM Mono, monospace', fontSize: 11,
                 cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap',
-                background:  filter === f.v ? 'rgba(79,143,255,0.12)' : 'transparent',
-                color:       filter === f.v ? 'var(--primary-color)'  : 'rgba(255,255,255,0.5)',
-                border:      filter === f.v ? '1px solid rgba(79,143,255,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                background: filter === f.v ? 'rgba(79,143,255,0.12)' : 'transparent',
+                color:      filter === f.v ? 'var(--primary-color)'  : 'var(--tt-text-secondary)',
+                border:     filter === f.v ? '1px solid rgba(79,143,255,0.4)' : '1px solid var(--tt-border)',
               }}
             >
               {f.l}
@@ -167,7 +167,7 @@ const PreventiveCarePage = () => {
 
       {/* Asset groups */}
       {filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 40, color: 'rgba(255,255,255,0.3)' }}>
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--tt-text-muted)' }}>
           <i className="pi pi-calendar" style={{ fontSize: 40, display: 'block', marginBottom: 12, opacity: 0.2 }} />
           <div style={{ fontSize: 13 }}>No care tasks found.</div>
           <div style={{ fontSize: 11, marginTop: 4, opacity: 0.6 }}>Add care tasks in Options → Default Care Schedules.</div>
@@ -178,20 +178,20 @@ const PreventiveCarePage = () => {
             const color = CATEGORY_COLORS[g.catColorKey as ColorKey] ?? CATEGORY_COLORS.blue
             const subtitle = [g.catName, g.subcategory, g.asset.location].filter(Boolean).join(' · ')
             return (
-              <div key={g.asset.id} style={{ background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
+              <div key={g.asset.id} style={{ background: 'var(--surface-card)', border: '1px solid var(--tt-border-soft)', borderRadius: 14, overflow: 'hidden' }}>
                 {/* Card header */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: '1px solid var(--tt-border-soft)' }}>
                   <div style={{ width: 36, height: 36, borderRadius: 9, background: color.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <i className={g.catIcon} style={{ fontSize: 16, color: color.text }} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: 'rgba(255,255,255,0.92)' }}>{g.asset.name}</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.38)', marginTop: 2 }}>{subtitle}</div>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--tt-text-primary)' }}>{g.asset.name}</div>
+                    <div style={{ fontSize: 12, color: 'var(--tt-text-muted)', marginTop: 2 }}>{subtitle}</div>
                   </div>
                   <button
                     type="button"
                     onClick={() => openLog(g.asset)}
-                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, background: 'var(--surface-section)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, background: 'var(--surface-section)', border: '1px solid var(--tt-border)', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}
                   >
                     <i className="pi pi-wrench" style={{ fontSize: 12 }} /> Log Service
                   </button>
@@ -202,20 +202,20 @@ const PreventiveCarePage = () => {
                   const fs  = FREQ_STYLE[task.freq] ?? FREQ_STYLE.asneeded
                   const sp  = STATUS_PILL[status]
                   return (
-                    <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                    <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderBottom: '1px solid var(--tt-border-faint)' }}>
                       {/* Freq badge */}
                       <span style={{ padding: '2px 7px', borderRadius: 5, fontSize: 10, fontFamily: 'DM Mono, monospace', fontWeight: 700, letterSpacing: '0.5px', background: fs.bg, color: fs.color, textTransform: 'uppercase', whiteSpace: 'nowrap', flexShrink: 0 }}>
                         {task.freq}
                       </span>
                       {/* Task name */}
-                      <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.88)' }}>{task.task}</span>
+                      <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: 'var(--tt-text-primary)' }}>{task.task}</span>
                       {/* Status pill */}
                       <span style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 99, background: sp.bg, color: sp.color, fontFamily: 'DM Mono, monospace', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>
                         <span style={{ width: 5, height: 5, borderRadius: '50%', background: sp.color }} />
                         {sp.label}
                       </span>
                       {/* Last done */}
-                      <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: 'rgba(255,255,255,0.3)', flexShrink: 0, minWidth: 72, textAlign: 'right' }}>
+                      <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: 'var(--tt-text-muted)', flexShrink: 0, minWidth: 72, textAlign: 'right' }}>
                         {lastDone ? lastDone.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never done'}
                       </span>
                     </div>
@@ -237,42 +237,42 @@ const PreventiveCarePage = () => {
         style={{ width: '560px' }}
         header={
           <div>
-            <div style={{ fontWeight: 700, fontSize: 16, color: 'rgba(255,255,255,0.92)' }}>
+            <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--tt-text-primary)' }}>
               🔧 Log Service — {logModalAsset?.name}
             </div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.38)', marginTop: 3 }}>
+            <div style={{ fontSize: 12, color: 'var(--tt-text-muted)', marginTop: 3 }}>
               {logCat?.name ?? '—'} · {logModalAsset?.location || '—'}
             </div>
           </div>
         }
         footer={
-          <button type="button" onClick={() => setLogModalAsset(null)} style={{ padding: '8px 18px', borderRadius: 8, background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>
+          <button type="button" onClick={() => setLogModalAsset(null)} style={{ padding: '8px 18px', borderRadius: 8, background: 'transparent', border: '1px solid var(--tt-border)', color: 'var(--tt-text-secondary)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>
             Close
           </button>
         }
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {!logCat?.careTasks?.length ? (
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>No care tasks defined for this category.</p>
+            <p style={{ color: 'var(--tt-text-muted)', fontSize: 13 }}>No care tasks defined for this category.</p>
           ) : logCat.careTasks.map(task => {
             const ts      = logModalAsset?.careCompletions?.[task.id]
             const lastStr = ts ? ts.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never logged'
             const fs      = FREQ_STYLE[task.freq] ?? FREQ_STYLE.asneeded
             return (
-              <div key={task.id} style={{ background: 'var(--surface-section)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '12px 14px' }}>
+              <div key={task.id} style={{ background: 'var(--surface-section)', border: '1px solid var(--tt-border-soft)', borderRadius: 10, padding: '12px 14px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                   <span style={{ padding: '2px 7px', borderRadius: 5, fontSize: 10, fontFamily: 'DM Mono, monospace', fontWeight: 700, background: fs.bg, color: fs.color, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                     {task.freq}
                   </span>
-                  <span style={{ fontSize: 13, fontWeight: 500, flex: 1, color: 'rgba(255,255,255,0.88)' }}>{task.task}</span>
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap' }}>{lastStr}</span>
+                  <span style={{ fontSize: 13, fontWeight: 500, flex: 1, color: 'var(--tt-text-primary)' }}>{task.task}</span>
+                  <span style={{ fontSize: 12, color: 'var(--tt-text-dim)', whiteSpace: 'nowrap' }}>{lastStr}</span>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <input
                     type="date"
                     value={logDates[task.id] ?? new Date().toISOString().split('T')[0]}
                     onChange={e => setLogDates(p => ({ ...p, [task.id]: e.target.value }))}
-                    style={{ flex: 1, background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 8, padding: '7px 10px', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none', colorScheme: 'dark' as const }}
+                    style={{ flex: 1, background: 'var(--surface-card)', border: '1px solid var(--tt-border)', borderRadius: 8, padding: '7px 10px', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none' }}
                   />
                   <button
                     type="button"

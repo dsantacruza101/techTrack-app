@@ -43,13 +43,13 @@ const S = {
     fontWeight: 600,
     letterSpacing: '2px',
     textTransform: 'uppercase' as const,
-    color: 'rgba(255,255,255,0.38)',
+    color: 'var(--tt-text-muted)',
     marginBottom: 6,
   },
   input: {
     width: '100%',
-    background: 'var(--surface-section)',
-    border: '1px solid rgba(255,255,255,0.09)',
+    background: 'var(--tt-bg-input)',
+    border: '1px solid var(--tt-border)',
     borderRadius: 9,
     padding: '10px 13px',
     color: 'var(--text-color)',
@@ -61,8 +61,8 @@ const S = {
   },
   select: {
     width: '100%',
-    background: 'var(--surface-section)',
-    border: '1px solid rgba(255,255,255,0.09)',
+    background: 'var(--tt-bg-input)',
+    border: '1px solid var(--tt-border)',
     borderRadius: 9,
     padding: '10px 13px',
     color: 'var(--text-color)',
@@ -75,8 +75,8 @@ const S = {
   },
   date: {
     width: '100%',
-    background: 'var(--surface-section)',
-    border: '1px solid rgba(255,255,255,0.09)',
+    background: 'var(--tt-bg-input)',
+    border: '1px solid var(--tt-border)',
     borderRadius: 9,
     padding: '10px 13px',
     color: 'var(--text-color)',
@@ -84,7 +84,6 @@ const S = {
     fontSize: 13,
     outline: 'none',
     boxSizing: 'border-box' as const,
-    colorScheme: 'dark' as const,
   },
   row: {
     display: 'grid' as const,
@@ -162,7 +161,7 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
           required
           autoFocus
           onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-          onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+          onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
         />
       </div>
 
@@ -230,7 +229,7 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
             onChange={e => set('serialNumber', e.target.value)}
             placeholder="e.g. SN123456"
             onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
           />
         </div>
         <div style={S.field}>
@@ -241,7 +240,7 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
             onChange={e => set('model', e.target.value)}
             placeholder="e.g. Epson BrightLink 595Wi"
             onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
           />
         </div>
       </div>
@@ -256,7 +255,7 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
             onChange={e => set('assignedTo', e.target.value)}
             placeholder="Name or department"
             onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
           />
         </div>
         <div style={S.field}>
@@ -267,7 +266,7 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
             onChange={e => set('location', e.target.value)}
             placeholder="e.g. Boiler Room B"
             onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
           />
         </div>
       </div>
@@ -282,7 +281,7 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
             value={toDateInput(form.purchaseDate)}
             onChange={e => { const ts = fromDateInput(e.target.value); if (ts) set('purchaseDate', ts) }}
             onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
           />
         </div>
         <div style={S.field}>
@@ -294,7 +293,7 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
             onChange={e => set('lifespanYears', Math.max(1, Number(e.target.value)))}
             min={1} max={30}
             onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
           />
         </div>
       </div>
@@ -311,7 +310,7 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
             min={0}
             placeholder="0"
             onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
           />
         </div>
         <div style={S.field}>
@@ -322,7 +321,7 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
             value={form.warrantyExpiry ? toDateInput(form.warrantyExpiry) : ''}
             onChange={e => set('warrantyExpiry', fromDateInput(e.target.value))}
             onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-            onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+            onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
           />
         </div>
       </div>
@@ -337,7 +336,7 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
           placeholder="Any additional notes, service history, etc."
           rows={3}
           onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-          onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+          onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
         />
       </div>
 

@@ -45,7 +45,8 @@ const Sidebar = ({ onNavClick, onAddAsset }: SidebarProps) => {
 
       {/* ── Logo ───────────────────────────────────────── */}
       <div
-        className="px-4 py-4 flex-shrink-0 cursor-pointer border-bottom-1 border-white-alpha-10"
+        className="px-4 py-4 flex-shrink-0 cursor-pointer"
+        style={{ borderBottom: '1px solid var(--tt-border)' }}
         onClick={() => navigate('/assets')}
       >
         <div className="font-serif font-bold text-900" style={{ fontSize: 17 }}>
@@ -111,7 +112,7 @@ const Sidebar = ({ onNavClick, onAddAsset }: SidebarProps) => {
       </nav>
 
       {/* ── Footer ─────────────────────────────────────── */}
-      <div className="px-3 py-3 border-top-1 border-white-alpha-10 flex-column gap-2 hidden md:flex">
+      <div className="px-3 py-3 flex-column gap-2 hidden md:flex" style={{ borderTop: '1px solid var(--tt-border)' }}>
 
         {/* Add Asset button */}
         {can('add_asset') && (
@@ -126,8 +127,8 @@ const Sidebar = ({ onNavClick, onAddAsset }: SidebarProps) => {
 
         {/* Total Value stat */}
         <div
-          className="border-round-lg p-3 border-1 border-white-alpha-10"
-          style={{ background: 'var(--surface-section)' }}
+          className="border-round-lg p-3"
+          style={{ border: '1px solid var(--tt-border)', background: 'var(--surface-section)' }}
         >
           <div className="font-mono uppercase text-500 mb-1" style={{ fontSize: 9, letterSpacing: '1.5px' }}>
             Total Value Est.

@@ -12,7 +12,7 @@ const AppLayout = () => {
   return (
     <div className="flex min-h-screen surface-ground">
       {/* Sidebar Escritorio */}
-      <aside className="tt-sidebar hidden md:flex flex-column surface-card border-right-1 border-white-alpha-10">
+      <aside className="tt-sidebar hidden md:flex flex-column surface-card" style={{ borderRight: '1px solid var(--tt-border)' }}>
         <Sidebar />
       </aside>
 

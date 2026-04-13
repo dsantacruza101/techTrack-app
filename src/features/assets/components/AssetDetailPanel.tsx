@@ -20,30 +20,29 @@ interface AssetDetailPanelProps {
 }
 
 const STATUS_BADGE: Record<string, { bg: string; color: string; label: string }> = {
-  active:      { bg: 'rgba(34,197,94,0.15)',   color: '#22c55e',               label: 'active'      },
-  maintenance: { bg: 'rgba(245,158,11,0.15)',  color: '#f59e0b',               label: 'maintenance' },
-  storage:     { bg: 'rgba(79,143,255,0.15)',   color: '#4f8fff',               label: 'in storage'  },
-  retired:     { bg: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', label: 'retired'     },
+  active:      { bg: 'rgba(34,197,94,0.15)',   color: '#22c55e', label: 'active'      },
+  maintenance: { bg: 'rgba(245,158,11,0.15)',  color: '#f59e0b', label: 'maintenance' },
+  storage:     { bg: 'rgba(79,143,255,0.15)',  color: '#4f8fff', label: 'in storage'  },
+  retired:     { bg: 'rgba(100,116,139,0.15)', color: '#94a3b8', label: 'retired'     },
 }
 
 const FREQ_BADGE: Record<string, { bg: string; color: string }> = {
   daily:     { bg: 'rgba(34,197,94,0.14)',   color: '#22c55e' },
-  weekly:    { bg: 'rgba(79,143,255,0.14)',   color: '#4f8fff' },
-  monthly:   { bg: 'rgba(245,158,11,0.14)',   color: '#f59e0b' },
-  quarterly: { bg: 'rgba(249,115,22,0.14)',   color: '#f97316' },
-  annually:  { bg: 'rgba(124,58,237,0.14)',   color: '#7c3aed' },
-  asneeded:  { bg: 'rgba(255,255,255,0.08)',  color: 'rgba(255,255,255,0.5)' },
+  weekly:    { bg: 'rgba(79,143,255,0.14)',  color: '#4f8fff' },
+  monthly:   { bg: 'rgba(245,158,11,0.14)',  color: '#f59e0b' },
+  quarterly: { bg: 'rgba(249,115,22,0.14)',  color: '#f97316' },
+  annually:  { bg: 'rgba(124,58,237,0.14)',  color: '#7c3aed' },
+  asneeded:  { bg: 'rgba(100,116,139,0.14)', color: '#94a3b8' },
 }
-
 
 // ── Key-value row ────────────────────────────────────────────────
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div style={{
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.05)',
+    padding: '10px 0', borderBottom: '1px solid var(--tt-border-faint)',
   }}>
-    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)' }}>{label}</span>
-    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.88)', textAlign: 'right', maxWidth: '60%' }}>{children}</span>
+    <span style={{ fontSize: 13, color: 'var(--tt-text-muted)' }}>{label}</span>
+    <span style={{ fontSize: 13, color: 'var(--tt-text-primary)', textAlign: 'right', maxWidth: '60%' }}>{children}</span>
   </div>
 )
 
@@ -78,8 +77,6 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
 
   if (!asset) return null
 
-
-
   const cat     = categories.find(c => c.id === asset.categoryId)
   const color   = cat ? (CATEGORY_COLORS[cat.colorKey as ColorKey] ?? CATEGORY_COLORS.blue) : CATEGORY_COLORS.blue
   const pct     = Math.round(getLifespanPercent(asset.purchaseDate, asset.lifespanYears) * 100)
@@ -98,14 +95,14 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
   const ftBtn: React.CSSProperties = {
     width: '25%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
     padding: '8px 0', borderRadius: 8, fontFamily: 'inherit', fontSize: 13,
-    cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)',
-    background: 'var(--surface-section)', color: 'var(--text-color)',
+    cursor: 'pointer', border: '1px solid var(--tt-border)',
+    background: 'var(--tt-surface-section)', color: 'var(--tt-text-primary)',
   }
   const ftIconBtn: React.CSSProperties = {
     width: '25%', display: 'flex', alignItems: 'center', justifyContent: 'center',
     padding: '8px 0', borderRadius: 8, fontFamily: 'inherit', fontSize: 14,
-    cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)',
-    background: 'var(--surface-section)', color: 'var(--text-color)', flexShrink: 0,
+    cursor: 'pointer', border: '1px solid var(--tt-border)',
+    background: 'var(--tt-surface-section)', color: 'var(--tt-text-primary)', flexShrink: 0,
   }
 
   return (
@@ -118,13 +115,13 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
       dismissable
       blockScroll
       pt={{
-        root:    { style: { background: '#131720', borderLeft: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', height: '100%' } },
+        root:    { style: { background: 'var(--tt-surface-card)', borderLeft: '1px solid var(--tt-border)', display: 'flex', flexDirection: 'column', height: '100%' } },
         header:  { style: { display: 'none' } },
         content: { style: { padding: 0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 } },
       }}
     >
       {/* ── Header ───────────────────────────────────────────── */}
-      <div style={{ padding: '18px 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
+      <div style={{ padding: '18px 20px 16px', borderBottom: '1px solid var(--tt-border-soft)', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
             <div style={{
@@ -135,24 +132,24 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
               <i className={cat?.icon ?? 'pi pi-box'} />
             </div>
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 600, fontSize: 15, color: 'rgba(255,255,255,0.92)', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div style={{ fontWeight: 600, fontSize: 15, color: 'var(--tt-text-primary)', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {asset.name}
               </div>
               {asset.serialNumber && (
-                <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 3 }}>
+                <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: 'var(--tt-text-muted)', marginTop: 3 }}>
                   {asset.serialNumber}
                 </div>
               )}
             </div>
           </div>
-          <button type="button" onClick={onHide} style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: 16, padding: 4, flexShrink: 0, lineHeight: 1 }}>
+          <button type="button" onClick={onHide} style={{ background: 'transparent', border: 'none', color: 'var(--tt-text-faint)', cursor: 'pointer', fontSize: 16, padding: 4, flexShrink: 0, lineHeight: 1 }}>
             ✕
           </button>
         </div>
       </div>
 
       {/* ── Tabs ─────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid var(--tt-border-soft)', flexShrink: 0 }}>
         {TABS.map(tab => (
           <button
             key={tab.id}
@@ -161,7 +158,7 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
             style={{
               flex: 1, padding: '10px 8px', border: 'none', cursor: 'pointer',
               background: 'transparent', fontFamily: 'inherit', fontSize: 13,
-              color: activeTab === tab.id ? 'var(--primary-color)' : 'rgba(255,255,255,0.4)',
+              color: activeTab === tab.id ? 'var(--primary-color)' : 'var(--tt-text-secondary)',
               borderBottom: activeTab === tab.id ? '2px solid var(--primary-color)' : '2px solid transparent',
               marginBottom: -1, transition: 'color 0.15s',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
@@ -178,7 +175,7 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
         {/* Info tab */}
         {activeTab === 'info' && (
           <div style={{ padding: '16px 20px' }}>
-            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: 4 }}>
+            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--tt-text-muted)', marginBottom: 4 }}>
               Asset Details
             </div>
             {asset.school    && <Row label="School">{schoolLabel}</Row>}
@@ -197,8 +194,8 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
             {asset.warrantyExpiry && <Row label="Warranty Exp.">{fmtFull(asset.warrantyExpiry.toDate())}</Row>}
             {asset.notes && (
               <div style={{ marginTop: 16 }}>
-                <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: 8 }}>Notes</div>
-                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, margin: 0 }}>{asset.notes}</p>
+                <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--tt-text-muted)', marginBottom: 8 }}>Notes</div>
+                <p style={{ fontSize: 13, color: 'var(--tt-text-secondary)', lineHeight: 1.6, margin: 0 }}>{asset.notes}</p>
               </div>
             )}
           </div>
@@ -210,33 +207,33 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
           const progressColor  = pct >= 80 ? '#ef4444' : pct >= 50 ? '#f59e0b' : '#22c55e'
           return (
             <div style={{ padding: '16px 20px' }}>
-              <div style={{ background: 'var(--surface-section)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '16px' }}>
+              <div style={{ background: 'var(--tt-surface-section)', border: '1px solid var(--tt-border-soft)', borderRadius: 12, padding: '16px' }}>
                 {/* Header row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>Lifespan Progress</span>
-                  <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{pct}% used</span>
+                  <span style={{ fontSize: 13, color: 'var(--tt-text-secondary)', fontWeight: 500 }}>Lifespan Progress</span>
+                  <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: 'var(--tt-text-muted)' }}>{pct}% used</span>
                 </div>
                 {/* Progress bar */}
-                <div style={{ height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 99, overflow: 'hidden', marginBottom: 14 }}>
+                <div style={{ height: 6, background: 'var(--tt-border-soft)', borderRadius: 99, overflow: 'hidden', marginBottom: 14 }}>
                   <div style={{ height: '100%', width: `${pct}%`, background: progressColor, borderRadius: 99, transition: 'width 0.4s' }} />
                 </div>
                 {/* Years remaining */}
                 <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 34, fontWeight: 700, color: progressColor, lineHeight: 1, marginBottom: 5, letterSpacing: '-0.5px' }}>
                   {yearsRemaining.toFixed(1)} years
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.32)', marginBottom: 16, fontStyle: 'italic' }}>
+                <div style={{ fontSize: 12, color: 'var(--tt-text-muted)', marginBottom: 16, fontStyle: 'italic' }}>
                   remaining before replacement
                 </div>
                 {/* Divider */}
-                <div style={{ height: 1, background: 'rgba(255,255,255,0.07)', marginBottom: 12 }} />
+                <div style={{ height: 1, background: 'var(--tt-border-soft)', marginBottom: 12 }} />
                 {/* Rows */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0' }}>
-                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)' }}>Replace by</span>
-                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.88)' }}>{fmt(replaceBy)}</span>
+                  <span style={{ fontSize: 13, color: 'var(--tt-text-muted)' }}>Replace by</span>
+                  <span style={{ fontSize: 13, color: 'var(--tt-text-primary)' }}>{fmt(replaceBy)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0' }}>
-                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)' }}>Total lifespan</span>
-                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.88)' }}>{asset.lifespanYears} year{asset.lifespanYears !== 1 ? 's' : ''}</span>
+                  <span style={{ fontSize: 13, color: 'var(--tt-text-muted)' }}>Total lifespan</span>
+                  <span style={{ fontSize: 13, color: 'var(--tt-text-primary)' }}>{asset.lifespanYears} year{asset.lifespanYears !== 1 ? 's' : ''}</span>
                 </div>
               </div>
             </div>
@@ -247,7 +244,7 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
         {activeTab === 'care' && (
           <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
             {careTasks.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.3)' }}>
+              <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--tt-text-muted)' }}>
                 <i className="pi pi-calendar" style={{ fontSize: 32, display: 'block', marginBottom: 12, opacity: 0.3 }} />
                 <div style={{ fontSize: 13 }}>No care tasks for {cat?.name ?? 'this category'}.</div>
                 <div style={{ fontSize: 11, marginTop: 4, opacity: 0.6 }}>Add tasks in Options → Category Manager.</div>
@@ -273,15 +270,15 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
                   const isOverdue = days > 0 && (!lastDone || (Date.now() - lastDone.toDate().getTime()) > days * 86400000)
                   return (
                     <div key={task.id} style={{
-                      background: 'rgba(255,255,255,0.03)', borderRadius: 10,
-                      border: '1px solid rgba(255,255,255,0.07)', padding: '12px 14px',
+                      background: 'var(--tt-surface-hover)', borderRadius: 10,
+                      border: '1px solid var(--tt-border-soft)', padding: '12px 14px',
                     }}>
                       {/* Top row: badge + task name */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                         <span style={{ padding: '2px 7px', borderRadius: 5, fontSize: 10, fontFamily: 'DM Mono, monospace', fontWeight: 700, letterSpacing: '0.5px', background: freq.bg, color: freq.color, whiteSpace: 'nowrap', textTransform: 'uppercase' }}>
                           {task.freq}
                         </span>
-                        <span style={{ fontWeight: 500, fontSize: 13, color: 'rgba(255,255,255,0.88)' }}>{task.task}</span>
+                        <span style={{ fontWeight: 500, fontSize: 13, color: 'var(--tt-text-primary)' }}>{task.task}</span>
                       </div>
                       {/* Bottom row: overdue status + last date */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
@@ -289,16 +286,16 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
                           <>
                             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', flexShrink: 0 }} />
                             <span style={{ color: '#ef4444', fontWeight: 600, fontFamily: 'DM Mono, monospace', fontSize: 11 }}>OVERDUE</span>
-                            <span style={{ color: 'rgba(255,255,255,0.25)' }}>·</span>
+                            <span style={{ color: 'var(--tt-text-muted)' }}>·</span>
                           </>
                         ) : (
                           <>
                             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e', flexShrink: 0 }} />
                             <span style={{ color: '#22c55e', fontWeight: 600, fontFamily: 'DM Mono, monospace', fontSize: 11 }}>OK</span>
-                            <span style={{ color: 'rgba(255,255,255,0.25)' }}>·</span>
+                            <span style={{ color: 'var(--tt-text-muted)' }}>·</span>
                           </>
                         )}
-                        <span style={{ color: 'rgba(255,255,255,0.38)', fontFamily: 'DM Mono, monospace', fontSize: 11 }}>
+                        <span style={{ color: 'var(--tt-text-muted)', fontFamily: 'DM Mono, monospace', fontSize: 11 }}>
                           Last: {lastDone ? fmtFull(lastDone.toDate()) : 'Never'}
                         </span>
                       </div>
@@ -313,7 +310,7 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
 
       {/* ── Footer ───────────────────────────────────────────── */}
       {!asset.isDeleted && (
-        <div style={{ padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.08)', flexShrink: 0, display: 'flex', gap: 8 }}>
+        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--tt-border-soft)', flexShrink: 0, display: 'flex', gap: 8 }}>
           <button type="button" style={ftBtn} onClick={() => { onEdit(asset); onHide() }}>
             <i className="pi pi-pencil" style={{ fontSize: 12 }} /> Edit
           </button>
@@ -344,10 +341,10 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
       style={{ width: '560px' }}
       header={
         <div>
-          <div style={{ fontWeight: 700, fontSize: 16, color: 'rgba(255,255,255,0.92)' }}>
+          <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--tt-text-primary)' }}>
             🔧 Log Service — {asset.name}
           </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.38)', marginTop: 3 }}>
+          <div style={{ fontSize: 12, color: 'var(--tt-text-muted)', marginTop: 3 }}>
             {cat?.name ?? '—'} · {asset.location || '—'}
           </div>
         </div>
@@ -356,40 +353,37 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
         <button
           type="button"
           onClick={() => setShowLogModal(false)}
-          style={{ padding: '8px 18px', borderRadius: 8, background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}
+          style={{ padding: '8px 18px', borderRadius: 8, background: 'transparent', border: '1px solid var(--tt-border)', color: 'var(--tt-text-secondary)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}
         >
           Close
         </button>
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {/* Per-task cards */}
         {careTasks.length === 0 && (
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>No care tasks defined for this category.</p>
+          <p style={{ color: 'var(--tt-text-muted)', fontSize: 13 }}>No care tasks defined for this category.</p>
         )}
         {careTasks.map(task => {
           const lastDone  = asset.careCompletions?.[task.id]
           const freq      = FREQ_BADGE[task.freq] ?? FREQ_BADGE.monthly
           const dateVal   = taskDates[task.id] ?? today
           return (
-            <div key={task.id} style={{ background: 'var(--surface-section)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '12px 14px' }}>
-              {/* Top row */}
+            <div key={task.id} style={{ background: 'var(--tt-surface-section)', border: '1px solid var(--tt-border-soft)', borderRadius: 10, padding: '12px 14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <span style={{ padding: '2px 7px', borderRadius: 5, fontSize: 10, fontFamily: 'DM Mono, monospace', fontWeight: 700, letterSpacing: '0.5px', background: freq.bg, color: freq.color, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                   {task.freq}
                 </span>
-                <span style={{ fontSize: 13, fontWeight: 500, flex: 1, color: 'rgba(255,255,255,0.88)' }}>{task.task}</span>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 13, fontWeight: 500, flex: 1, color: 'var(--tt-text-primary)' }}>{task.task}</span>
+                <span style={{ fontSize: 12, color: 'var(--tt-text-dim)', whiteSpace: 'nowrap' }}>
                   {lastDone ? `Last: ${lastDone.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : 'Never logged'}
                 </span>
               </div>
-              {/* Date + Mark Done */}
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input
                   type="date"
                   value={dateVal}
                   onChange={e => setTaskDates(prev => ({ ...prev, [task.id]: e.target.value }))}
-                  style={{ flex: 1, background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 8, padding: '7px 10px', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none', colorScheme: 'dark' as const }}
+                  style={{ flex: 1, background: 'var(--tt-surface-card)', border: '1px solid var(--tt-border)', borderRadius: 8, padding: '7px 10px', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none' }}
                 />
                 <button
                   type="button"
@@ -412,8 +406,8 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
         })}
 
         {/* Custom task */}
-        <div style={{ paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 8 }}>
+        <div style={{ paddingTop: 10, borderTop: '1px solid var(--tt-border-soft)' }}>
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--tt-text-muted)', marginBottom: 8 }}>
             Custom Task (one-off)
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -422,9 +416,9 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
               value={customTask}
               onChange={e => setCustomTask(e.target.value)}
               placeholder="e.g. Replaced belt"
-              style={{ flex: 1, background: 'var(--surface-section)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 8, padding: '7px 12px', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none' }}
+              style={{ flex: 1, background: 'var(--tt-surface-section)', border: '1px solid var(--tt-border)', borderRadius: 8, padding: '7px 12px', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none' }}
               onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-              onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+              onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
             />
             <button
               type="button"
@@ -437,7 +431,7 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
                 setCustomTask('')
                 setLoggingCustom(false)
               }}
-              style={{ padding: '7px 14px', borderRadius: 8, background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.7)', fontFamily: 'inherit', fontSize: 13, cursor: !customTask.trim() || loggingCustom ? 'not-allowed' : 'pointer', opacity: !customTask.trim() || loggingCustom ? 0.4 : 1, whiteSpace: 'nowrap' }}
+              style={{ padding: '7px 14px', borderRadius: 8, background: 'transparent', border: '1px solid var(--tt-border)', color: 'var(--tt-text-secondary)', fontFamily: 'inherit', fontSize: 13, cursor: !customTask.trim() || loggingCustom ? 'not-allowed' : 'pointer', opacity: !customTask.trim() || loggingCustom ? 0.4 : 1, whiteSpace: 'nowrap' }}
             >
               {loggingCustom ? '…' : '+ Log'}
             </button>

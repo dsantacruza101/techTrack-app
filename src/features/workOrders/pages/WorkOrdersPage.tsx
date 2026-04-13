@@ -28,19 +28,19 @@ const STATUS_STYLE: Record<WOStatus, { bg: string; color: string }> = {
   open:       { bg: 'rgba(79,143,255,0.15)',  color: '#4f8fff' },
   inprogress: { bg: 'rgba(245,158,11,0.15)',  color: '#f59e0b' },
   completed:  { bg: 'rgba(34,197,94,0.15)',   color: '#22c55e' },
-  onhold:     { bg: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' },
+  onhold:     { bg: 'rgba(100,116,139,0.15)', color: '#94a3b8' },
   cancelled:  { bg: 'rgba(239,68,68,0.12)',   color: '#ef4444' },
 }
 
 // ── Shared input style ────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
-  width: '100%', background: 'var(--surface-section)', border: '1px solid rgba(255,255,255,0.09)',
+  width: '100%', background: 'var(--surface-section)', border: '1px solid var(--tt-border)',
   borderRadius: 9, padding: '10px 13px', color: 'var(--text-color)', fontFamily: 'inherit',
   fontSize: 13, outline: 'none', boxSizing: 'border-box',
 }
 const lbl: React.CSSProperties = {
   display: 'block', fontFamily: 'DM Mono, monospace', fontSize: 10, fontWeight: 600,
-  letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', marginBottom: 6,
+  letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--tt-text-muted)', marginBottom: 6,
 }
 
 const WO_CATEGORY_OPTIONS = [
@@ -118,6 +118,9 @@ const WorkOrdersPage = () => {
 
   const fmtDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
+  const focusBorder  = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')
+  const blurBorder   = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.currentTarget.style.borderColor = 'var(--tt-border)')
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
@@ -125,7 +128,7 @@ const WorkOrdersPage = () => {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div>
           <div style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 700, color: 'var(--text-color)' }}>📋 Work Order Management</div>
-          <div style={{ fontSize: 13, marginTop: 4, color: 'rgba(255,255,255,0.4)' }}>Create, track, and prioritize maintenance tasks from submission to completion</div>
+          <div style={{ fontSize: 13, marginTop: 4, color: 'var(--tt-text-secondary)' }}>Create, track, and prioritize maintenance tasks from submission to completion</div>
         </div>
         {can('create_work_order') && (
           <button type="button" onClick={openNew} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, background: 'var(--primary-color)', border: 'none', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
@@ -137,11 +140,11 @@ const WorkOrdersPage = () => {
       {/* Metrics */}
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
         {METRICS.map(m => (
-          <div key={m.label} style={{ flex: 1, minWidth: 120, position: 'relative', overflow: 'hidden', background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px 18px', borderTop: `3px solid ${m.color}` }}>
+          <div key={m.label} style={{ flex: 1, minWidth: 120, position: 'relative', overflow: 'hidden', background: 'var(--surface-card)', border: '1px solid var(--tt-border-soft)', borderRadius: 12, padding: '16px 18px', borderTop: `3px solid ${m.color}` }}>
             <i className={m.icon} style={{ position: 'absolute', right: 14, top: 14, fontSize: 18, color: m.color, opacity: 0.15 }} />
-            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', marginBottom: 8 }}>{m.label}</div>
+            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--tt-text-muted)', marginBottom: 8 }}>{m.label}</div>
             <div style={{ fontFamily: 'Georgia, serif', fontSize: 32, fontWeight: 700, lineHeight: 1, color: 'var(--text-color)' }}>{m.value}</div>
-            <div style={{ fontSize: 11, marginTop: 4, color: 'rgba(255,255,255,0.35)' }}>{m.subtitle}</div>
+            <div style={{ fontSize: 11, marginTop: 4, color: 'var(--tt-text-dim)' }}>{m.subtitle}</div>
           </div>
         ))}
       </div>
@@ -157,27 +160,27 @@ const WorkOrdersPage = () => {
               style={{
                 padding: '5px 14px', borderRadius: 99, fontFamily: 'DM Mono, monospace', fontSize: 11,
                 cursor: 'pointer', transition: 'all 0.15s',
-                background:  filterStatus === f.value ? 'rgba(79,143,255,0.12)' : 'transparent',
-                color:       filterStatus === f.value ? 'var(--primary-color)' : 'rgba(255,255,255,0.5)',
-                border:      filterStatus === f.value ? '1px solid rgba(79,143,255,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                background: filterStatus === f.value ? 'rgba(79,143,255,0.12)' : 'transparent',
+                color:      filterStatus === f.value ? 'var(--primary-color)'  : 'var(--tt-text-secondary)',
+                border:     filterStatus === f.value ? '1px solid rgba(79,143,255,0.4)' : '1px solid var(--tt-border)',
               }}
             >
               {f.label}
             </button>
           ))}
         </div>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: 'DM Mono, monospace' }}>
+        <span style={{ fontSize: 12, color: 'var(--tt-text-muted)', fontFamily: 'DM Mono, monospace' }}>
           {filtered.length} work order{filtered.length !== 1 ? 's' : ''}
         </span>
       </div>
 
       {/* Cards */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40, color: 'rgba(255,255,255,0.3)' }}>
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--tt-text-muted)' }}>
           <i className="pi pi-spin pi-spinner" style={{ fontSize: 24 }} />
         </div>
       ) : filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 40, color: 'rgba(255,255,255,0.3)' }}>
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--tt-text-muted)' }}>
           <i className="pi pi-clipboard" style={{ fontSize: 40, display: 'block', marginBottom: 12, opacity: 0.2 }} />
           <div style={{ fontSize: 13 }}>No work orders found.</div>
         </div>
@@ -188,12 +191,12 @@ const WorkOrdersPage = () => {
             const ps = PRIORITY_STYLE[wo.priority]
             const ss = STATUS_STYLE[wo.status]
             return (
-              <div key={wo.id} style={{ background: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, overflow: 'hidden' }}>
+              <div key={wo.id} style={{ background: 'var(--surface-card)', border: '1px solid var(--tt-border-soft)', borderRadius: 12, overflow: 'hidden' }}>
                 {/* Card body */}
                 <div style={{ padding: '14px 16px' }}>
                   {/* Title row */}
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: 'rgba(255,255,255,0.92)', lineHeight: 1.4, flex: 1 }}>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--tt-text-primary)', lineHeight: 1.4, flex: 1 }}>
                       🔧 {wo.title}
                     </div>
                     <div style={{ display: 'flex', gap: 6, flexShrink: 0, alignItems: 'center' }}>
@@ -206,43 +209,43 @@ const WorkOrdersPage = () => {
                     </div>
                   </div>
                   {/* ID + created */}
-                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: 'var(--tt-text-muted)', marginTop: 4 }}>
                     #{wo.id.slice(-8).toUpperCase()} · Created {fmtDate(wo.createdAt.toDate())}
                   </div>
                   {/* Notes */}
                   {wo.notes && (
-                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 6, lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+                    <div style={{ fontSize: 13, color: 'var(--tt-text-secondary)', marginTop: 6, lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
                       {wo.notes}
                     </div>
                   )}
                   {/* Meta row */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10, flexWrap: 'wrap' }}>
                     {wo.assignedTo && (
-                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 12, color: 'var(--tt-text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
                         <i className="pi pi-user" style={{ fontSize: 11 }} /> {wo.assignedTo}
                       </span>
                     )}
                     {wo.dueDate && (
-                      <span style={{ fontSize: 12, color: isOverdue ? '#f87171' : 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'DM Mono, monospace' }}>
+                      <span style={{ fontSize: 12, color: isOverdue ? '#f87171' : 'var(--tt-text-secondary)', display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'DM Mono, monospace' }}>
                         <i className="pi pi-calendar" style={{ fontSize: 11 }} /> Due {fmtDate(wo.dueDate.toDate())}
                       </span>
                     )}
                     {wo.assetId && assetMap[wo.assetId] && (
-                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 12, color: 'var(--tt-text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
                         <i className="pi pi-box" style={{ fontSize: 11 }} /> {assetMap[wo.assetId]}
                       </span>
                     )}
                     {!!wo.estimatedCost && (
-                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', fontFamily: 'DM Mono, monospace' }}>
+                      <span style={{ fontSize: 12, color: 'var(--tt-text-secondary)', fontFamily: 'DM Mono, monospace' }}>
                         ${wo.estimatedCost}
                       </span>
                     )}
                   </div>
                 </div>
                 {/* Action bar */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 0, borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 0, borderTop: '1px solid var(--tt-border-faint)', background: 'var(--tt-hover-bg-xs)' }}>
                   {can('edit_work_order') && (
-                    <button type="button" onClick={() => openEdit(wo)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 16px', background: 'transparent', border: 'none', borderRight: '1px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.55)', fontFamily: 'inherit', fontSize: 12, cursor: 'pointer' }}>
+                    <button type="button" onClick={() => openEdit(wo)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 16px', background: 'transparent', border: 'none', borderRight: '1px solid var(--tt-border-faint)', color: 'var(--tt-text-secondary)', fontFamily: 'inherit', fontSize: 12, cursor: 'pointer' }}>
                       <i className="pi pi-pencil" style={{ fontSize: 11 }} /> Edit
                     </button>
                   )}
@@ -250,7 +253,7 @@ const WorkOrdersPage = () => {
                     <select
                       value={wo.status}
                       onChange={e => updateStatus(wo.id, e.target.value as WOStatus)}
-                      style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.45)', fontFamily: 'inherit', fontSize: 12, cursor: 'pointer', outline: 'none', width: '100%' }}
+                      style={{ background: 'transparent', border: 'none', color: 'var(--tt-text-secondary)', fontFamily: 'inherit', fontSize: 12, cursor: 'pointer', outline: 'none', width: '100%' }}
                     >
                       {WO_STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
@@ -260,7 +263,7 @@ const WorkOrdersPage = () => {
                       type="button"
                       disabled={deletingId === wo.id}
                       onClick={() => setConfirmId(wo.id)}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 14px', background: 'transparent', border: 'none', borderLeft: '1px solid rgba(255,255,255,0.06)', color: 'rgba(239,68,68,0.6)', fontFamily: 'inherit', fontSize: 13, cursor: deletingId === wo.id ? 'not-allowed' : 'pointer', opacity: deletingId === wo.id ? 0.5 : 1 }}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 14px', background: 'transparent', border: 'none', borderLeft: '1px solid var(--tt-border-faint)', color: 'rgba(239,68,68,0.6)', fontFamily: 'inherit', fontSize: 13, cursor: deletingId === wo.id ? 'not-allowed' : 'pointer', opacity: deletingId === wo.id ? 0.5 : 1 }}
                     >
                       {deletingId === wo.id
                         ? <i className="pi pi-spin pi-spinner" style={{ fontSize: 12 }} />
@@ -290,8 +293,7 @@ const WorkOrdersPage = () => {
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <label style={lbl}>Title *</label>
             <input style={inp} value={form.title} onChange={e => set('title', e.target.value)} placeholder="e.g. Replace projector bulb" autoFocus
-              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-              onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')} />
+              onFocus={focusBorder} onBlur={blurBorder} />
           </div>
           {/* Category + Asset */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -330,35 +332,31 @@ const WorkOrdersPage = () => {
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <label style={lbl}>Assigned To</label>
               <input style={inp} value={form.assignedTo} onChange={e => set('assignedTo', e.target.value)} placeholder="Name or dept."
-                onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-                onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')} />
+                onFocus={focusBorder} onBlur={blurBorder} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <label style={lbl}>Due Date</label>
-              <input type="date" style={{ ...inp, colorScheme: 'dark' as const }}
+              <input type="date" style={inp}
                 value={form.dueDate ? form.dueDate.toDate().toISOString().split('T')[0] : ''}
                 onChange={e => set('dueDate', e.target.value ? Timestamp.fromDate(new Date(e.target.value + 'T00:00:00')) : null)}
-                onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-                onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')} />
+                onFocus={focusBorder} onBlur={blurBorder} />
             </div>
           </div>
           {/* Estimated Cost */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <label style={lbl}>Estimated Cost ($)</label>
             <input type="number" style={inp} value={form.estimatedCost || ''} onChange={e => set('estimatedCost', Number(e.target.value))} placeholder="0" min={0}
-              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-              onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')} />
+              onFocus={focusBorder} onBlur={blurBorder} />
           </div>
           {/* Notes */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <label style={lbl}>Description</label>
             <textarea style={{ ...inp, resize: 'vertical', minHeight: 80 }} value={form.notes} onChange={e => set('notes', e.target.value)} rows={3} placeholder="Describe the issue or task..."
-              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-              onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')} />
+              onFocus={focusBorder} onBlur={blurBorder} />
           </div>
           {/* Footer */}
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 4 }}>
-            <button type="button" onClick={() => setDialogOpen(false)} disabled={saving} style={{ padding: '8px 18px', borderRadius: 8, background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', fontFamily: 'inherit', fontSize: 13, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.4 : 1 }}>
+            <button type="button" onClick={() => setDialogOpen(false)} disabled={saving} style={{ padding: '8px 18px', borderRadius: 8, background: 'transparent', border: '1px solid var(--tt-border)', color: 'var(--tt-text-secondary)', fontFamily: 'inherit', fontSize: 13, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.4 : 1 }}>
               Cancel
             </button>
             <button type="button" onClick={handleSave} disabled={saving || !form.title.trim()} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 8, background: 'var(--primary-color)', border: 'none', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: saving || !form.title.trim() ? 'not-allowed' : 'pointer', opacity: saving || !form.title.trim() ? 0.4 : 1 }}>
@@ -385,7 +383,7 @@ const WorkOrdersPage = () => {
         }
         footer={
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-            <button type="button" onClick={() => setConfirmId(null)} style={{ padding: '8px 18px', borderRadius: 8, background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>
+            <button type="button" onClick={() => setConfirmId(null)} style={{ padding: '8px 18px', borderRadius: 8, background: 'transparent', border: '1px solid var(--tt-border)', color: 'var(--tt-text-secondary)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>
               Cancel
             </button>
             <button
@@ -405,7 +403,7 @@ const WorkOrdersPage = () => {
           </div>
         }
       >
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', margin: 0, lineHeight: 1.6 }}>
+        <p style={{ fontSize: 13, color: 'var(--tt-text-secondary)', margin: 0, lineHeight: 1.6 }}>
           Are you sure you want to delete this work order? This action cannot be undone.
         </p>
       </Dialog>

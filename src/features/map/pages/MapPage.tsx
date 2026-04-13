@@ -264,7 +264,7 @@ const MapPage = () => {
                   background: filter === f.value ? 'rgba(79,143,255,0.12)' : 'transparent',
                   border: filter === f.value
                     ? '1px solid rgba(79,143,255,0.35)'
-                    : '1px solid rgba(255,255,255,0.07)',
+                    : '1px solid var(--tt-border)',
                   color: filter === f.value ? '#4f8fff' : 'var(--text-color-secondary)',
                 }}
               >
@@ -274,24 +274,36 @@ const MapPage = () => {
           </div>
 
           {/* Separator */}
-          <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.1)' }} />
+          <div style={{ width: 1, height: 20, background: 'var(--tt-border)' }} />
 
           {/* Edit Map / View Mode */}
           {can('edit_map') && (
             editing ? (
-              <Button
-                label="View Mode"
-                size="small"
+              <button
                 onClick={() => { setEditing(false); setDragging(null); setResizing(null) }}
-              />
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '5px 13px', borderRadius: 7, fontSize: 13, fontWeight: 500,
+                  fontFamily: 'inherit', cursor: 'pointer', transition: 'all 0.15s',
+                  background: 'var(--primary-color)', border: '1px solid var(--primary-color)',
+                  color: '#fff',
+                }}
+              >
+                View Mode
+              </button>
             ) : (
-              <Button
-                label="✏ Edit Map"
-                size="small"
-                severity="secondary"
-                outlined
+              <button
                 onClick={() => setEditing(true)}
-              />
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '5px 13px', borderRadius: 7, fontSize: 13, fontWeight: 500,
+                  fontFamily: 'inherit', cursor: 'pointer', transition: 'all 0.15s',
+                  background: 'transparent', border: '1px solid var(--tt-border)',
+                  color: 'var(--text-color-secondary)',
+                }}
+              >
+                ✏ Edit Map
+              </button>
             )
           )}
         </div>

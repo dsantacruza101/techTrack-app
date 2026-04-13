@@ -75,10 +75,10 @@ const AssetsPage = () => {
   const [search, setSearch]           = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [detailAsset, setDetailAsset] = useState<Asset | undefined>()
-  const [addTab, setAddTab]           = useState<'manual' | 'bulk' | 'copy'>('manual')
-  const [bulkText, setBulkText]       = useState('')
+  const [addTab, setAddTab]           = useState<'manual' | 'csv' | 'copy'>('manual')
   const [bulkImporting, setBulkImporting] = useState(false)
-  const [bulkPreviewRows, setBulkPreviewRows] = useState<{ name:string; category:string; subcategoryId:string; model:string; serialNumber:string; status:string; assignedTo:string; location:string; purchaseDate:string; lifespanYears:number; estimatedValue:number; notes:string; categoryId:string }[]>([])
+  const [csvParsing, setCsvParsing]       = useState(false)
+  const [bulkPreviewRows, setBulkPreviewRows] = useState<{ name:string; category:string; subcategoryId:string; model:string; serialNumber:string; status:string; assignedTo:string; location:string; purchaseDate:string; lifespanYears:number; warrantyExpiry:string; estimatedValue:number; notes:string; categoryId:string }[]>([])
   const [showBulkPreview, setShowBulkPreview] = useState(false)
   const [headersCopied, setHeadersCopied]     = useState(false)
   const [copySourceId, setCopySourceId]   = useState<string>('')
@@ -139,7 +139,8 @@ const AssetsPage = () => {
   const notify = (severity: 'success' | 'error', summary: string, detail: string) =>
     toast.current?.show({ severity, summary, detail, life: 3000 })
 
-  const openCreate = () => { setSelected(undefined); setAddTab('manual'); setBulkText(''); setCopySourceId(''); setCopySearch(''); setShowBulkPreview(false); setBulkPreviewRows([]); setDialogOpen(true) }
+  const openCreate = () => { setSelected(undefined); setAddTab('manual'); setCopySourceId(''); setCopySearch(''); setShowBulkPreview(false); setBulkPreviewRows([]); setDialogOpen(true) }
+  const switchAddTab = (tab: 'manual' | 'csv' | 'copy') => { setAddTab(tab); setShowBulkPreview(false); setBulkPreviewRows([]) }
   const openEdit   = (a: Asset) => { setSelected(a); setDialogOpen(true) }
 
   const handleSave = async (data: AssetFormData) => {
@@ -173,41 +174,73 @@ const AssetsPage = () => {
       ok ? `"${a.name}" has been duplicated.` : 'Something went wrong.')
   }
 
-  const BULK_TEMPLATE = 'Name\tCategory\tSubcategory\tModel\tSerial\tStatus\tAssigned\tLocation\tPurchase (YYYY-MM-DD)\tLifespan(yrs)\tValue($)\tNotes'
+  const CSV_TEMPLATE_HEADERS = 'Name,Category,Subcategory,Model,Serial,Status,Assigned,Location,Purchase Date,Lifespan (yrs),Warranty Exp.,Est. Value,Notes'
 
-  const parseBulkTSV = () => {
-    const lines = bulkText.trim().split('\n').filter(l => l.trim() && !l.startsWith('Name\t'))
-    return lines.map(line => {
-      const cols = line.split('\t')
-      const [rawName='', rawCat='', rawSub='', rawModel='', rawSerial='', rawStatus='', rawAssigned='', rawLoc='', rawDate='', rawLife='', rawVal='', rawNotes=''] = cols
-      const cat = categories.find(c => c.name.toLowerCase() === rawCat.trim().toLowerCase())
-      return {
-        name:          rawName.trim(),
-        category:      rawCat.trim(),
-        subcategoryId: rawSub.trim(),
-        model:         rawModel.trim(),
-        serialNumber:  rawSerial.trim(),
-        status:        rawStatus.trim() || 'active',
-        assignedTo:    rawAssigned.trim(),
-        location:      rawLoc.trim(),
-        purchaseDate:  rawDate.trim() || new Date().toISOString().slice(0, 10),
-        lifespanYears: parseInt(rawLife.trim()) || 5,
-        estimatedValue: parseFloat(rawVal.trim()) || 0,
-        notes:         rawNotes.trim(),
-        categoryId:    cat?.id ?? '',
-      }
-    }).filter(r => r.name)
+  // ── CSV File Import ────────────────────────────────────────────────────────
+  const parseCSVLine = (line: string): string[] => {
+    const result: string[] = []
+    let cur = '', inQ = false
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i]
+      if (ch === '"') {
+        if (inQ && line[i + 1] === '"') { cur += '"'; i++ }
+        else inQ = !inQ
+      } else if (ch === ',' && !inQ) { result.push(cur); cur = '' }
+      else cur += ch
+    }
+    result.push(cur)
+    return result
   }
 
-  const handleBulkPreview = () => {
-    const rows = parseBulkTSV()
-    if (!rows.length) { notify('error', 'Empty', 'No valid rows found. Check your paste format.'); return }
-    setBulkPreviewRows(rows)
-    setShowBulkPreview(true)
+  const handleCSVFile = (file: File) => {
+    setCsvParsing(true)
+    const reader = new FileReader()
+    reader.onload = e => {
+      const text = (e.target?.result as string) ?? ''
+      const lines = text.trim().split(/\r?\n/)
+      if (lines.length < 2) { notify('error', 'Empty', 'CSV has no data rows.'); return }
+      const headers = parseCSVLine(lines[0]).map(h => h.trim())
+      // Map header names to indices (flexible — matches export format)
+      const idx = (name: string) => headers.findIndex(h => h.toLowerCase() === name.toLowerCase())
+      const iName = idx('Name'), iCat = idx('Category'), iSub = idx('Subcategory')
+      const iModel = idx('Model'), iSerial = idx('Serial'), iStatus = idx('Status')
+      const iAssigned = idx('Assigned'), iLoc = idx('Location')
+      const iDate = idx('Purchase Date'), iLife = idx('Lifespan (yrs)')
+      const iWarranty = idx('Warranty Exp.'), iVal = idx('Est. Value'), iNotes = idx('Notes')
+
+      const rows = lines.slice(1).map(line => {
+        const cols = parseCSVLine(line)
+        const get = (i: number) => (i >= 0 ? (cols[i] ?? '').trim() : '')
+        const rawCat = get(iCat)
+        const cat = categories.find(c => c.name.toLowerCase() === rawCat.toLowerCase())
+        return {
+          name:          get(iName),
+          category:      rawCat,
+          subcategoryId: get(iSub),
+          model:         get(iModel),
+          serialNumber:  get(iSerial),
+          status:        get(iStatus) || 'active',
+          assignedTo:    get(iAssigned),
+          location:      get(iLoc),
+          purchaseDate:  get(iDate) || new Date().toISOString().slice(0, 10),
+          lifespanYears: parseInt(get(iLife)) || 5,
+          warrantyExpiry: get(iWarranty) || '',
+          estimatedValue: parseFloat(get(iVal)) || 0,
+          notes:         get(iNotes),
+          categoryId:    cat?.id ?? '',
+        }
+      }).filter(r => r.name)
+
+      if (!rows.length) { notify('error', 'Empty', 'No valid rows found in CSV.'); setCsvParsing(false); return }
+      setBulkPreviewRows(rows)
+      setShowBulkPreview(true)
+      setCsvParsing(false)
+    }
+    reader.readAsText(file)
   }
 
   const handleBulkImport = async () => {
-    const rows = showBulkPreview ? bulkPreviewRows : parseBulkTSV()
+    const rows = bulkPreviewRows
     if (!rows.length) { notify('error', 'Empty', 'No valid rows found.'); return }
     setBulkImporting(true)
     let success = 0
@@ -219,7 +252,8 @@ const AssetsPage = () => {
         serialNumber: row.serialNumber, assetTag: '',
         purchaseDate: Timestamp.fromDate(new Date(row.purchaseDate + 'T00:00:00')),
         purchasePrice: row.estimatedValue, estimatedValue: row.estimatedValue,
-        lifespanYears: row.lifespanYears, warrantyExpiry: null,
+        lifespanYears: row.lifespanYears,
+        warrantyExpiry: row.warrantyExpiry ? Timestamp.fromDate(new Date(row.warrantyExpiry + 'T00:00:00')) : null,
         assignedTo: row.assignedTo, location: row.location, notes: row.notes,
       }
       const ok = await create(data)
@@ -430,7 +464,7 @@ const AssetsPage = () => {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search assets..."
-          className="p-inputtext p-component w-full"
+          style={{ width: '100%', background: 'var(--tt-bg-input)', border: '1px solid var(--tt-border)', borderRadius: 8, padding: '8px 10px 8px 2.25rem', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none' }}
         />
       </div>
       {/* Export */}
@@ -470,7 +504,7 @@ const AssetsPage = () => {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search assets..."
-          className="p-inputtext p-component w-full"
+          style={{ width: '100%', background: 'var(--tt-bg-input)', border: '1px solid var(--tt-border)', borderRadius: 8, padding: '8px 10px 8px 2.25rem', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none' }}
         />
       </div>
 
@@ -598,19 +632,19 @@ const AssetsPage = () => {
         {!selected && (
           <div className="flex gap-2 mb-4">
             {([
-              { id: 'manual', label: '+ Single'      },
-              { id: 'bulk',   label: '📋 Bulk Paste'  },
+              { id: 'manual', label: '+ Single'        },
+              { id: 'csv',    label: '📂 Import CSV'   },
               { id: 'copy',   label: '📋 Copy Existing'},
             ] as const).map(t => (
               <button
                 key={t.id}
-                onClick={() => setAddTab(t.id)}
+                onClick={() => switchAddTab(t.id)}
                 style={{
                   padding: '6px 15px', fontFamily: 'inherit', fontSize: 13, fontWeight: 500,
                   cursor: 'pointer', borderRadius: 8, transition: 'all 0.15s',
-                  background:   addTab === t.id ? 'var(--primary-color)'             : 'transparent',
-                  color:        addTab === t.id ? '#fff'                              : 'rgba(255,255,255,0.5)',
-                  border:       addTab === t.id ? '1px solid var(--primary-color)'   : '1px solid rgba(255,255,255,0.15)',
+                  background:   addTab === t.id ? 'var(--primary-color)'           : 'transparent',
+                  color:        addTab === t.id ? '#fff'                            : 'var(--tt-text-secondary)',
+                  border:       addTab === t.id ? '1px solid var(--primary-color)' : '1px solid var(--tt-border)',
                 }}
               >
                 {t.label}
@@ -632,95 +666,113 @@ const AssetsPage = () => {
           />
         )}
 
-        {/* Bulk Paste tab */}
-        {!selected && addTab === 'bulk' && (
+
+
+        {/* CSV Import tab */}
+        {!selected && addTab === 'csv' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {!showBulkPreview ? (
               <>
-                {/* Instructions */}
                 <div style={{ fontSize: 13, color: 'var(--text-color-secondary)', lineHeight: 1.6 }}>
-                  Paste rows from Excel/Google Sheets (tab-separated). Each row = one asset.<br />
-                  <span style={{ color: 'var(--text-color)' }}><strong>Columns:</strong></span>{' '}
-                  Name · Category · Subcategory · Model · Serial · Status · Assigned · Location · Purchase (YYYY-MM-DD) · Lifespan(yrs) · Value($) · Notes
+                  Upload a CSV exported from TechTrack, or create your own using the template headers below.
                 </div>
-                {/* Copy Template Headers button */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <button
                     type="button"
-                    onClick={() => navigator.clipboard.writeText(BULK_TEMPLATE).then(() => { setHeadersCopied(true); setTimeout(() => setHeadersCopied(false), 2500) })}
-                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, background: 'var(--surface-section)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}
+                    onClick={() => navigator.clipboard.writeText(CSV_TEMPLATE_HEADERS).then(() => { setHeadersCopied(true); setTimeout(() => setHeadersCopied(false), 2500) })}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, background: 'var(--tt-surface-section)', border: '1px solid var(--tt-border)', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}
                   >
                     📋 Copy Template Headers
                   </button>
-                  {headersCopied && (
-                    <span style={{ fontSize: 13, color: '#22c55e', display: 'flex', alignItems: 'center', gap: 4 }}>
-                      ✅ Copied!
-                    </span>
-                  )}
+                  {headersCopied && <span style={{ fontSize: 13, color: '#22c55e' }}>✅ Copied!</span>}
                 </div>
-                {/* Textarea */}
-                <textarea
-                  value={bulkText}
-                  onChange={e => setBulkText(e.target.value)}
-                  placeholder="Paste rows here…"
-                  rows={10}
+                <label
                   style={{
-                    width: '100%', background: 'var(--surface-section)', border: '1px solid rgba(255,255,255,0.09)',
-                    borderRadius: 9, padding: '10px 13px', color: 'var(--text-color)', fontFamily: 'DM Mono, monospace',
-                    fontSize: 12, resize: 'vertical', outline: 'none', boxSizing: 'border-box' as const, colorScheme: 'dark' as const,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    gap: 10, padding: '32px 20px', borderRadius: 12,
+                    border: `2px dashed ${csvParsing ? 'rgba(79,143,255,0.5)' : 'var(--tt-border)'}`,
+                    background: 'var(--tt-bg-input)',
+                    cursor: csvParsing ? 'not-allowed' : 'pointer', transition: 'border-color 0.15s',
                   }}
-                  onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-                  onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
-                />
-                {/* Footer */}
+                  onDragOver={e => { e.preventDefault(); if (!csvParsing) e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)' }}
+                  onDragLeave={e => { if (!csvParsing) e.currentTarget.style.borderColor = 'var(--tt-border)' }}
+                  onDrop={e => {
+                    e.preventDefault()
+                    e.currentTarget.style.borderColor = 'var(--tt-border)'
+                    const file = e.dataTransfer.files[0]
+                    if (file && !csvParsing) handleCSVFile(file)
+                  }}
+                >
+                  {csvParsing ? (
+                    <>
+                      <i className="pi pi-spin pi-spinner" style={{ fontSize: 28, color: 'var(--primary-color)' }} />
+                      <span style={{ fontSize: 14, color: 'var(--text-color-secondary)' }}>Reading file…</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="pi pi-upload" style={{ fontSize: 28, color: 'var(--text-color-secondary)' }} />
+                      <span style={{ fontSize: 14, color: 'var(--text-color-secondary)' }}>
+                        Drag & drop a CSV file here, or <span style={{ color: 'var(--primary-color)', fontWeight: 600 }}>click to browse</span>
+                      </span>
+                    </>
+                  )}
+                  <input
+                    type="file" accept=".csv" style={{ display: 'none' }}
+                    disabled={csvParsing}
+                    onChange={e => { const f = e.target.files?.[0]; if (f) handleCSVFile(f) }}
+                  />
+                </label>
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 4 }}>
-                  <button type="button" onClick={() => setDialogOpen(false)} style={{ padding: '8px 18px', borderRadius: 8, background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>
+                  <button type="button" onClick={() => setDialogOpen(false)} style={{ padding: '8px 18px', borderRadius: 8, background: 'transparent', border: '1px solid var(--tt-border)', color: 'var(--text-color-secondary)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>
                     Cancel
-                  </button>
-                  <button type="button" onClick={handleBulkPreview} disabled={!bulkText.trim()} style={{ padding: '8px 18px', borderRadius: 8, background: 'var(--surface-section)', border: '1px solid rgba(255,255,255,0.15)', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, cursor: bulkText.trim() ? 'pointer' : 'not-allowed', opacity: bulkText.trim() ? 1 : 0.4, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    👁 Preview
-                  </button>
-                  <button type="button" onClick={handleBulkImport} disabled={bulkImporting || !bulkText.trim()} style={{ padding: '8px 18px', borderRadius: 8, background: 'var(--primary-color)', border: 'none', color: '#fff', fontFamily: 'inherit', fontSize: 13, cursor: bulkImporting || !bulkText.trim() ? 'not-allowed' : 'pointer', opacity: bulkImporting || !bulkText.trim() ? 0.4 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {bulkImporting ? 'Importing…' : '↑ Import All'}
                   </button>
                 </div>
               </>
             ) : (
               <>
-                {/* Preview table */}
                 <div style={{ fontSize: 13, color: 'var(--text-color-secondary)' }}>
                   <strong style={{ color: 'var(--text-color)' }}>{bulkPreviewRows.length} row{bulkPreviewRows.length !== 1 ? 's' : ''}</strong> ready to import. Review below.
                 </div>
-                <div style={{ overflowX: 'auto', maxHeight: 300, border: '1px solid rgba(255,255,255,0.09)', borderRadius: 9 }}>
+                <div style={{ position: 'relative', overflowX: 'auto', maxHeight: 300, border: '1px solid var(--tt-border)', borderRadius: 9 }}>
+                  {bulkImporting && (
+                    <div style={{
+                      position: 'absolute', inset: 0, zIndex: 10, borderRadius: 9,
+                      background: 'rgba(0,0,0,0.45)', display: 'flex', flexDirection: 'column',
+                      alignItems: 'center', justifyContent: 'center', gap: 10,
+                    }}>
+                      <i className="pi pi-spin pi-spinner" style={{ fontSize: 28, color: '#fff' }} />
+                      <span style={{ fontSize: 13, color: '#fff', fontWeight: 500 }}>Importing assets…</span>
+                    </div>
+                  )}
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, fontFamily: 'DM Mono, monospace' }}>
                     <thead>
-                      <tr style={{ background: 'var(--surface-section)', position: 'sticky', top: 0 }}>
-                        {['Name','Category','Model','Serial','Status','Assigned','Location'].map(h => (
-                          <th key={h} style={{ padding: '8px 10px', textAlign: 'left', color: 'rgba(255,255,255,0.38)', fontWeight: 600, letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: '1px solid rgba(255,255,255,0.09)' }}>{h}</th>
+                      <tr style={{ background: 'var(--tt-surface-section)', position: 'sticky', top: 0 }}>
+                        {['Name','Category','Subcategory','Model','Serial','Status','Assigned','Location'].map(h => (
+                          <th key={h} style={{ padding: '8px 10px', textAlign: 'left', color: 'var(--tt-text-muted)', fontWeight: 600, letterSpacing: '1px', whiteSpace: 'nowrap', borderBottom: '1px solid var(--tt-border)' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {bulkPreviewRows.map((r, i) => (
-                        <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <tr key={i} style={{ borderBottom: '1px solid var(--tt-border-faint)' }}>
                           <td style={{ padding: '7px 10px', color: 'var(--text-color)', whiteSpace: 'nowrap' }}>{r.name}</td>
                           <td style={{ padding: '7px 10px', color: r.categoryId ? 'var(--text-color)' : '#ef4444', whiteSpace: 'nowrap' }}>{r.category || '—'}</td>
-                          <td style={{ padding: '7px 10px', color: 'rgba(255,255,255,0.6)', whiteSpace: 'nowrap' }}>{r.model || '—'}</td>
-                          <td style={{ padding: '7px 10px', color: 'rgba(255,255,255,0.6)', whiteSpace: 'nowrap' }}>{r.serialNumber || '—'}</td>
-                          <td style={{ padding: '7px 10px', color: 'rgba(255,255,255,0.6)', whiteSpace: 'nowrap' }}>{r.status}</td>
-                          <td style={{ padding: '7px 10px', color: 'rgba(255,255,255,0.6)', whiteSpace: 'nowrap' }}>{r.assignedTo || '—'}</td>
-                          <td style={{ padding: '7px 10px', color: 'rgba(255,255,255,0.6)', whiteSpace: 'nowrap' }}>{r.location || '—'}</td>
+                          <td style={{ padding: '7px 10px', color: 'var(--text-color-secondary)', whiteSpace: 'nowrap' }}>{r.subcategoryId || '—'}</td>
+                          <td style={{ padding: '7px 10px', color: 'var(--text-color-secondary)', whiteSpace: 'nowrap' }}>{r.model || '—'}</td>
+                          <td style={{ padding: '7px 10px', color: 'var(--text-color-secondary)', whiteSpace: 'nowrap' }}>{r.serialNumber || '—'}</td>
+                          <td style={{ padding: '7px 10px', color: 'var(--text-color-secondary)', whiteSpace: 'nowrap' }}>{r.status}</td>
+                          <td style={{ padding: '7px 10px', color: 'var(--text-color-secondary)', whiteSpace: 'nowrap' }}>{r.assignedTo || '—'}</td>
+                          <td style={{ padding: '7px 10px', color: 'var(--text-color-secondary)', whiteSpace: 'nowrap' }}>{r.location || '—'}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
                 {bulkPreviewRows.some(r => !r.categoryId) && (
-                  <div style={{ fontSize: 12, color: '#f59e0b' }}>⚠ Some categories weren't matched (shown in red). They'll be saved without a category.</div>
+                  <div style={{ fontSize: 12, color: '#f59e0b' }}>⚠ Some categories weren't matched (shown in red). They'll be saved without a category — you can edit them after import.</div>
                 )}
-                {/* Footer */}
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 4 }}>
-                  <button type="button" onClick={() => setShowBulkPreview(false)} style={{ padding: '8px 18px', borderRadius: 8, background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>
+                  <button type="button" onClick={() => setShowBulkPreview(false)} style={{ padding: '8px 18px', borderRadius: 8, background: 'transparent', border: '1px solid var(--tt-border)', color: 'var(--text-color-secondary)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer' }}>
                     ← Back
                   </button>
                   <button type="button" onClick={handleBulkImport} disabled={bulkImporting} style={{ padding: '8px 18px', borderRadius: 8, background: 'var(--primary-color)', border: 'none', color: '#fff', fontFamily: 'inherit', fontSize: 13, cursor: bulkImporting ? 'not-allowed' : 'pointer', opacity: bulkImporting ? 0.4 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>

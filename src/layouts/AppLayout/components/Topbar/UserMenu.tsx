@@ -3,10 +3,12 @@ import { Menu } from 'primereact/menu'
 import { Avatar } from 'primereact/avatar'
 import type { MenuItem } from 'primereact/menuitem'
 import { useAuth } from '../../../../contexts/AuthContext'
+import { useTheme } from '../../../../contexts/ThemeContext'
 
 const UserMenu = () => {
   const menuRef = useRef<Menu>(null)
   const { userProfile, role, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
 
   const initials = userProfile?.displayName
     ? userProfile.displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -26,10 +28,22 @@ const UserMenu = () => {
       ),
     },
     {
-      label: 'Sign out', 
-      icon: 'pi pi-sign-out', 
       template: () => (
-        <button 
+        <button
+          onClick={toggleTheme}
+          className="w-full p-link flex align-items-center p-3 transition-colors border-none bg-transparent cursor-pointer border-round-lg"
+          style={{ color: 'var(--tt-text-primary)' }}
+        >
+          <i className={`pi ${theme === 'dark' ? 'pi-sun' : 'pi-moon'} mr-2`} style={{ color: 'var(--tt-text-secondary)' }} />
+          <span className="font-medium">{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+        </button>
+      ),
+    },
+    {
+      label: 'Sign out',
+      icon: 'pi pi-sign-out',
+      template: () => (
+        <button
           onClick={() => logout()}
           className="w-full p-link flex align-items-center p-3 text-red-400 hover:bg-red-900-alpha-10 transition-colors border-none bg-transparent cursor-pointer border-round-lg mt-1"
         >
@@ -49,7 +63,7 @@ const UserMenu = () => {
         onShow={() => { document.body.style.overflow = 'hidden' }}
         onHide={() => { document.body.style.overflow = '' }}
         className="shadow-4"
-        style={{ backgroundColor: 'var(--surface-card)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, overflow: 'hidden' }}
+        style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--tt-border)', borderRadius: 16, overflow: 'hidden' }}
         pt={{
             root: {
               className: 'w-15rem p-2',

@@ -20,7 +20,7 @@ const careOverdueCount = (list: Asset[], categories: Category[]) =>
 
 const CARD_STYLE: React.CSSProperties = {
   background:   'var(--surface-card)',
-  border:       '1px solid rgba(255,255,255,0.07)',
+  border:       '1px solid var(--tt-border-soft)',
   borderRadius: 14,
   padding:      '14px 20px',
   display:      'flex',
@@ -51,16 +51,16 @@ const GhostBtn = ({ onClick, children }: { onClick: () => void; children: React.
     style={{
       display: 'inline-flex', alignItems: 'center', gap: 6,
       padding: '5px 13px', borderRadius: 8,
-      background: 'transparent', border: '1px solid rgba(255,255,255,0.15)',
+      background: 'transparent', border: '1px solid var(--tt-border)',
       color: 'var(--text-color-secondary)', fontSize: 13, fontWeight: 500,
       fontFamily: 'inherit', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s',
     }}
     onMouseEnter={e => {
-      (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.35)'
+      (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--tt-border-medium)'
       ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--text-color)'
     }}
     onMouseLeave={e => {
-      (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.15)'
+      (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--tt-border)'
       ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--text-color-secondary)'
     }}
   >
@@ -77,11 +77,17 @@ const SchoolChip = ({ name, count, overdue, onClick }: {
     style={{
       display: 'inline-flex', alignItems: 'center', gap: 10,
       padding: '6px 14px', borderRadius: 9,
-      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+      background: 'var(--tt-surface-section)', border: '1px solid var(--tt-border)',
       cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
     }}
-    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.07)' }}
-    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)' }}
+    onMouseEnter={e => {
+      (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--primary-color)'
+      ;(e.currentTarget as HTMLButtonElement).style.background = 'rgba(79,143,255,0.06)'
+    }}
+    onMouseLeave={e => {
+      (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--tt-border)'
+      ;(e.currentTarget as HTMLButtonElement).style.background = 'var(--tt-surface-section)'
+    }}
   >
     <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-color)' }}>🏫 {name}:</span>
     <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary-color)' }}>{count}</span>
