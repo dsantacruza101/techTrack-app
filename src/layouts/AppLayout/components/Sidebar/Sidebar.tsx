@@ -105,7 +105,6 @@ const Sidebar = ({ onNavClick, onAddAsset }: SidebarProps) => {
             {can('manage_categories') && <SidebarNavItem label="Categories"   icon="pi pi-tag"   to="/categories"   onClick={onNavClick} />}
             {can('invite_users')      && <SidebarNavItem label="Users"        icon="pi pi-users" to="/users"        onClick={onNavClick} />}
             {can('manage_settings')   && <SidebarNavItem label="Options"      icon="pi pi-cog"   to="/options"      onClick={onNavClick} />}
-            {can('manage_integrations') && <SidebarNavItem label="Integrations" icon="pi pi-link" to="/integrations" onClick={onNavClick} />}
           </>
         )}
 

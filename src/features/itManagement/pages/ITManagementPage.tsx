@@ -312,7 +312,13 @@ const ITManagementPage = () => {
         draggable={false}
         resizable={false}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 8, position: 'relative' }}>
+          {saving && (
+            <div className="tt-form-saving-overlay">
+              <i className="pi pi-spin pi-spinner" />
+              <span>Saving…</span>
+            </div>
+          )}
           {/* Issue Title */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <FieldLabel>Issue Title *</FieldLabel>

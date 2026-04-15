@@ -72,6 +72,7 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
   const [showLogModal, setShowLogModal]   = useState(false)
   const today = new Date().toISOString().split('T')[0]
   const [taskDates, setTaskDates]         = useState<Record<string, string>>({})
+  const [taskCosts, setTaskCosts]         = useState<Record<string, string>>({})
   const [customTask, setCustomTask]       = useState('')
   const [loggingCustom, setLoggingCustom] = useState(false)
 
@@ -112,7 +113,7 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
       onHide={onHide}
       position="right"
       className="w-full md:w-25rem"
-      dismissable
+      dismissable={!showLogModal}
       blockScroll
       pt={{
         root:    { style: { background: 'var(--tt-surface-card)', borderLeft: '1px solid var(--tt-border)', display: 'flex', flexDirection: 'column', height: '100%' } },
@@ -255,7 +256,7 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 2 }}>
                   <button
                     type="button"
-                    onClick={() => { setTaskDates({}); setCustomTask(''); setShowLogModal(true) }}
+                    onClick={() => { setTaskDates({}); setTaskCosts({}); setCustomTask(''); setShowLogModal(true) }}
                     style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, background: 'var(--primary-color)', border: 'none', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
                   >
                     <i className="pi pi-wrench" style={{ fontSize: 12 }} /> Log Service
@@ -264,6 +265,7 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
                 {/* Task cards */}
                 {careTasks.map(task => {
                   const lastDone  = asset.careCompletions?.[task.id]
+                  const lastCost  = asset.careCompletionCosts?.[task.id]
                   const freq      = FREQ_BADGE[task.freq] ?? FREQ_BADGE.monthly
                   const freqDays: Record<string, number> = { daily: 1, weekly: 7, monthly: 30, quarterly: 91, annually: 365 }
                   const days      = freqDays[task.freq] ?? 0
@@ -280,24 +282,31 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
                         </span>
                         <span style={{ fontWeight: 500, fontSize: 13, color: 'var(--tt-text-primary)' }}>{task.task}</span>
                       </div>
-                      {/* Bottom row: overdue status + last date */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                      {/* Bottom row: overdue status + last date + last cost */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, flexWrap: 'wrap' }}>
                         {isOverdue ? (
                           <>
                             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', flexShrink: 0 }} />
                             <span style={{ color: '#ef4444', fontWeight: 600, fontFamily: 'DM Mono, monospace', fontSize: 11 }}>OVERDUE</span>
-                            <span style={{ color: 'var(--tt-text-muted)' }}>·</span>
                           </>
                         ) : (
                           <>
                             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e', flexShrink: 0 }} />
                             <span style={{ color: '#22c55e', fontWeight: 600, fontFamily: 'DM Mono, monospace', fontSize: 11 }}>OK</span>
-                            <span style={{ color: 'var(--tt-text-muted)' }}>·</span>
                           </>
                         )}
+                        <span style={{ color: 'var(--tt-text-muted)' }}>·</span>
                         <span style={{ color: 'var(--tt-text-muted)', fontFamily: 'DM Mono, monospace', fontSize: 11 }}>
                           Last: {lastDone ? fmtFull(lastDone.toDate()) : 'Never'}
                         </span>
+                        {lastCost && (
+                          <>
+                            <span style={{ color: 'var(--tt-text-muted)' }}>·</span>
+                            <span style={{ color: 'var(--tt-text-secondary)', fontFamily: 'DM Mono, monospace', fontSize: 11, fontWeight: 600 }}>
+                              ${lastCost.toFixed(2)}
+                            </span>
+                          </>
+                        )}
                       </div>
                     </div>
                   )
@@ -314,7 +323,7 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
           <button type="button" style={ftBtn} onClick={() => { onEdit(asset); onHide() }}>
             <i className="pi pi-pencil" style={{ fontSize: 12 }} /> Edit
           </button>
-          <button type="button" style={ftBtn} onClick={() => setActiveTab('care')}>
+          <button type="button" style={ftBtn} onClick={() => { setActiveTab('care'); setTaskDates({}); setTaskCosts({}); setCustomTask(''); setShowLogModal(true) }}>
             <i className="pi pi-wrench" style={{ fontSize: 12 }} /> Care
           </button>
           {onDuplicate && (
@@ -378,20 +387,33 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
                   {lastDone ? `Last: ${lastDone.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : 'Never logged'}
                 </span>
               </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                 <input
                   type="date"
                   value={dateVal}
                   onChange={e => setTaskDates(prev => ({ ...prev, [task.id]: e.target.value }))}
-                  style={{ flex: 1, background: 'var(--tt-surface-card)', border: '1px solid var(--tt-border)', borderRadius: 8, padding: '7px 10px', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none' }}
+                  style={{ flex: '1 1 120px', background: 'var(--tt-surface-card)', border: '1px solid var(--tt-border)', borderRadius: 8, padding: '7px 10px', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none' }}
                 />
+                <div style={{ position: 'relative', flex: '1 1 90px' }}>
+                  <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: 'var(--tt-text-muted)', pointerEvents: 'none' }}>$</span>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    placeholder="Cost"
+                    value={taskCosts[task.id] ?? ''}
+                    onChange={e => setTaskCosts(prev => ({ ...prev, [task.id]: e.target.value }))}
+                    style={{ width: '100%', background: 'var(--tt-surface-card)', border: '1px solid var(--tt-border)', borderRadius: 8, padding: '7px 10px 7px 22px', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
                 <button
                   type="button"
                   disabled={loggingTask === task.id}
                   onClick={async () => {
                     setLoggingTask(task.id)
-                    const d = new Date(dateVal + 'T00:00:00')
-                    await assetService.logCare(asset.id, task.id, Timestamp.fromDate(d))
+                    const d    = new Date(dateVal + 'T00:00:00')
+                    const cost = parseFloat(taskCosts[task.id] ?? '') || undefined
+                    await assetService.logCare(asset.id, task.id, Timestamp.fromDate(d), cost)
                     setLoggingTask(null)
                   }}
                   style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, background: 'var(--primary-color)', border: 'none', color: '#fff', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: loggingTask === task.id ? 'not-allowed' : 'pointer', opacity: loggingTask === task.id ? 0.5 : 1, whiteSpace: 'nowrap' }}
@@ -401,6 +423,14 @@ const AssetDetailPanel = ({ asset, categories, visible, onHide, onEdit, onDuplic
                     : <>✓ Mark Done</>}
                 </button>
               </div>
+              {(() => {
+                const lastCost = asset.careCompletionCosts?.[task.id]
+                return lastCost ? (
+                  <div style={{ marginTop: 6, fontSize: 11, color: 'var(--tt-text-muted)' }}>
+                    Last logged cost: <span style={{ color: 'var(--tt-text-secondary)', fontWeight: 600 }}>${lastCost.toFixed(2)}</span>
+                  </div>
+                ) : null
+              })()}
             </div>
           )
         })}

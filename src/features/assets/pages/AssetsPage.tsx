@@ -74,7 +74,8 @@ const AssetsPage = () => {
   const [selected, setSelected]       = useState<Asset | undefined>()
   const [search, setSearch]           = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
-  const [detailAsset, setDetailAsset] = useState<Asset | undefined>()
+  const [detailAssetId, setDetailAssetId] = useState<string | undefined>()
+  const detailAsset = detailAssetId ? assets.find(a => a.id === detailAssetId) : undefined
   const [addTab, setAddTab]           = useState<'manual' | 'csv' | 'copy'>('manual')
   const [bulkImporting, setBulkImporting] = useState(false)
   const [csvParsing, setCsvParsing]       = useState(false)
@@ -458,7 +459,7 @@ const AssetsPage = () => {
   const topbarActions = (
     <div className="flex align-items-center gap-2">
       {/* Search */}
-      <div className="p-icon-field p-icon-field-left" style={{ width: 280, maxWidth: '100%' }}>
+      <div className="p-icon-field p-icon-field-left tt-search-field">
         <i className="pi pi-search p-input-icon" />
         <input
           value={search}
@@ -588,7 +589,7 @@ const AssetsPage = () => {
           loading={loading}
           emptyMessage="No assets found."
           rowClassName={(row: Asset) => row.isDeleted ? 'tt-row-disabled' : ''}
-          onRowClick={e => setDetailAsset(e.data as Asset)}
+          onRowClick={e => setDetailAssetId((e.data as Asset).id)}
           stripedRows
           showGridlines={false}
           style={{ borderRadius: '12px', overflow: 'hidden', cursor: 'pointer' }}
@@ -611,10 +612,10 @@ const AssetsPage = () => {
         asset={detailAsset ?? null}
         categories={categories}
         visible={!!detailAsset}
-        onHide={() => setDetailAsset(undefined)}
+        onHide={() => setDetailAssetId(undefined)}
         onEdit={openEdit}
-        onDuplicate={a => { handleReplicate(a); setDetailAsset(undefined) }}
-        onDelete={a => { handleDelete(a); setDetailAsset(undefined) }}
+        onDuplicate={a => { handleReplicate(a); setDetailAssetId(undefined) }}
+        onDelete={a => { handleDelete(a); setDetailAssetId(undefined) }}
       />
 
       {/* ── Dialog ──────────────────────────────────────────────────── */}

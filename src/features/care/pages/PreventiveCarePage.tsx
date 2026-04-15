@@ -69,6 +69,7 @@ const PreventiveCarePage = () => {
   const [filter, setFilter]               = useState<CareFilter>('all')
   const [logModalAsset, setLogModalAsset] = useState<Asset | null>(null)
   const [logDates, setLogDates]           = useState<Record<string, string>>({})
+  const [logCosts, setLogCosts]           = useState<Record<string, string>>({})
   const [saving, setSaving]               = useState<string | null>(null)
 
   const groups = useMemo<AssetGroup[]>(() => {
@@ -115,14 +116,16 @@ const PreventiveCarePage = () => {
     const today = new Date().toISOString().split('T')[0]
     cat?.careTasks?.forEach(t => { init[t.id] = today })
     setLogDates(init)
+    setLogCosts({})
     setLogModalAsset(asset)
   }
 
   const handleLog = async (taskId: string) => {
     if (!logModalAsset) return
     setSaving(taskId)
-    const d  = new Date((logDates[taskId] ?? new Date().toISOString().split('T')[0]) + 'T00:00:00')
-    await assetService.logCare(logModalAsset.id, taskId, Timestamp.fromDate(d))
+    const d    = new Date((logDates[taskId] ?? new Date().toISOString().split('T')[0]) + 'T00:00:00')
+    const cost = parseFloat(logCosts[taskId] ?? '') || undefined
+    await assetService.logCare(logModalAsset.id, taskId, Timestamp.fromDate(d), cost)
     setSaving(null)
   }
 
@@ -214,6 +217,15 @@ const PreventiveCarePage = () => {
                         <span style={{ width: 5, height: 5, borderRadius: '50%', background: sp.color }} />
                         {sp.label}
                       </span>
+                      {/* Last cost */}
+                      {(() => {
+                        const cost = g.asset.careCompletionCosts?.[task.id]
+                        return cost ? (
+                          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: 'var(--tt-text-muted)', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                            ${cost.toFixed(2)}
+                          </span>
+                        ) : null
+                      })()}
                       {/* Last done */}
                       <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: 'var(--tt-text-muted)', flexShrink: 0, minWidth: 72, textAlign: 'right' }}>
                         {lastDone ? lastDone.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never done'}
@@ -267,13 +279,25 @@ const PreventiveCarePage = () => {
                   <span style={{ fontSize: 13, fontWeight: 500, flex: 1, color: 'var(--tt-text-primary)' }}>{task.task}</span>
                   <span style={{ fontSize: 12, color: 'var(--tt-text-dim)', whiteSpace: 'nowrap' }}>{lastStr}</span>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <input
                     type="date"
                     value={logDates[task.id] ?? new Date().toISOString().split('T')[0]}
                     onChange={e => setLogDates(p => ({ ...p, [task.id]: e.target.value }))}
-                    style={{ flex: 1, background: 'var(--surface-card)', border: '1px solid var(--tt-border)', borderRadius: 8, padding: '7px 10px', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none' }}
+                    style={{ flex: '1 1 120px', background: 'var(--surface-card)', border: '1px solid var(--tt-border)', borderRadius: 8, padding: '7px 10px', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none' }}
                   />
+                  <div style={{ position: 'relative', flex: '1 1 100px' }}>
+                    <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: 'var(--tt-text-muted)', pointerEvents: 'none' }}>$</span>
+                    <input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      placeholder="Cost"
+                      value={logCosts[task.id] ?? ''}
+                      onChange={e => setLogCosts(p => ({ ...p, [task.id]: e.target.value }))}
+                      style={{ width: '100%', background: 'var(--surface-card)', border: '1px solid var(--tt-border)', borderRadius: 8, padding: '7px 10px 7px 22px', color: 'var(--text-color)', fontFamily: 'inherit', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                    />
+                  </div>
                   <button
                     type="button"
                     disabled={saving === task.id}
@@ -285,6 +309,14 @@ const PreventiveCarePage = () => {
                       : <>✓ Mark Done</>}
                   </button>
                 </div>
+                {(() => {
+                  const lastCost = logModalAsset?.careCompletionCosts?.[task.id]
+                  return lastCost ? (
+                    <div style={{ marginTop: 6, fontSize: 11, color: 'var(--tt-text-muted)' }}>
+                      Last logged cost: <span style={{ color: 'var(--tt-text-secondary)', fontWeight: 600 }}>${lastCost.toFixed(2)}</span>
+                    </div>
+                  ) : null
+                })()}
               </div>
             )
           })}

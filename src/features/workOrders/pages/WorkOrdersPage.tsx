@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Dialog } from 'primereact/dialog'
+import { Dropdown } from 'primereact/dropdown'
 import { Timestamp } from 'firebase/firestore'
 import { useWorkOrders } from '../hooks/useWorkOrders'
 import { useWorkOrderMutations } from '../hooks/useWorkOrderMutations'
@@ -288,7 +289,13 @@ const WorkOrdersPage = () => {
         draggable={false}
         resizable={false}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingTop: 8, position: 'relative' }}>
+          {saving && (
+            <div className="tt-form-saving-overlay">
+              <i className="pi pi-spin pi-spinner" />
+              <span>Saving…</span>
+            </div>
+          )}
           {/* Title */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <label style={lbl}>Title *</label>
@@ -299,32 +306,53 @@ const WorkOrdersPage = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <label style={lbl}>Category</label>
-              <select style={{ ...inp, appearance: 'auto' as const }} value={form.category} onChange={e => set('category', e.target.value)}>
-                <option value="">Select category</option>
-                {WO_CATEGORY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+              <Dropdown
+                value={form.category || null}
+                options={WO_CATEGORY_OPTIONS}
+                onChange={e => set('category', e.value ?? '')}
+                placeholder="Select category"
+                appendTo={document.body}
+                style={{ width: '100%' }}
+                className="tt-form-dropdown"
+              />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <label style={lbl}>Linked Asset</label>
-              <select style={{ ...inp, appearance: 'auto' as const }} value={form.assetId} onChange={e => set('assetId', e.target.value)}>
-                <option value="">Select asset</option>
-                {assetOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+              <Dropdown
+                value={form.assetId || null}
+                options={assetOptions}
+                onChange={e => set('assetId', e.value ?? '')}
+                placeholder="Select asset"
+                appendTo={document.body}
+                filter
+                style={{ width: '100%' }}
+                className="tt-form-dropdown"
+              />
             </div>
           </div>
           {/* Priority + Status */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <label style={lbl}>Priority</label>
-              <select style={{ ...inp, appearance: 'auto' as const }} value={form.priority} onChange={e => set('priority', e.target.value as WOPriority)}>
-                {WO_PRIORITY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+              <Dropdown
+                value={form.priority}
+                options={WO_PRIORITY_OPTIONS}
+                onChange={e => set('priority', e.value as WOPriority)}
+                appendTo={document.body}
+                style={{ width: '100%' }}
+                className="tt-form-dropdown"
+              />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <label style={lbl}>Status</label>
-              <select style={{ ...inp, appearance: 'auto' as const }} value={form.status} onChange={e => set('status', e.target.value as WOStatus)}>
-                {WO_STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
+              <Dropdown
+                value={form.status}
+                options={WO_STATUS_OPTIONS}
+                onChange={e => set('status', e.value as WOStatus)}
+                appendTo={document.body}
+                style={{ width: '100%' }}
+                className="tt-form-dropdown"
+              />
             </div>
           </div>
           {/* Assigned + Due Date */}

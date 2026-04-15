@@ -128,13 +128,17 @@ const replicate = async (asset: Asset): Promise<boolean> => {
   }
 }
 
-/** Log care task completion on an asset. */
-const logCare = async (assetId: string, taskId: string, date: Timestamp): Promise<boolean> => {
+/** Log care task completion on an asset, optionally recording a cost. */
+const logCare = async (assetId: string, taskId: string, date: Timestamp, cost?: number): Promise<boolean> => {
   try {
-    await updateDoc(doc(db, COL, assetId), {
+    const fields: Record<string, unknown> = {
       [`careCompletions.${taskId}`]: date,
       updatedAt: serverTimestamp(),
-    })
+    }
+    if (cost !== undefined && cost > 0) {
+      fields[`careCompletionCosts.${taskId}`] = cost
+    }
+    await updateDoc(doc(db, COL, assetId), fields)
     return true
   } catch {
     return false

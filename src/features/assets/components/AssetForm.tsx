@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Timestamp } from 'firebase/firestore'
+import { Dropdown } from 'primereact/dropdown'
 import type { Category } from '../../categories/types/category.types'
 import type { Asset, AssetFormData } from '../types/asset.types'
 import { ASSET_STATUS_OPTIONS } from '../types/asset.types'
+import { useMapRooms } from '../../map/hooks/useMapRooms'
 
 interface AssetFormProps {
   initial?: Asset
@@ -109,6 +111,15 @@ const fromDateInput = (v: string): Timestamp | null => {
 
 const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName = 'School B', saving, onSave, onCancel }: AssetFormProps) => {
   const [form, setForm] = useState<AssetFormData>(DEFAULT)
+  const { rooms } = useMapRooms()
+
+  const roomOptions = useMemo(() => {
+    const floors = [...new Set(rooms.map(r => r.floor))].sort()
+    return floors.flatMap(floor => [
+      { label: floor, value: floor, disabled: true, isGroupHeader: true },
+      ...rooms.filter(r => r.floor === floor).map(r => ({ label: r.label, value: r.label })),
+    ])
+  }, [rooms])
 
   useEffect(() => {
     setForm(initial ? {
@@ -148,7 +159,13 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
   ]
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative' }}>
+      {saving && (
+        <div className="tt-form-saving-overlay">
+          <i className="pi pi-spin pi-spinner" />
+          <span>Saving…</span>
+        </div>
+      )}
 
       {/* ASSET NAME */}
       <div style={S.field}>
@@ -169,28 +186,26 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
       <div style={S.row}>
         <div style={S.field}>
           <label style={S.label}>School / Site</label>
-          <select
-            style={S.select}
+          <Dropdown
             value={form.school}
-            onChange={e => set('school', e.target.value)}
-          >
-            <option value="school_a">{schoolAName}</option>
-            <option value="school_b">{schoolBName}</option>
-          </select>
+            options={[{ label: schoolAName, value: 'school_a' }, { label: schoolBName, value: 'school_b' }]}
+            onChange={e => set('school', e.value)}
+            appendTo={document.body}
+            style={{ width: '100%' }}
+            className="tt-form-dropdown"
+          />
         </div>
         <div style={S.field}>
           <label style={S.label}>Category <span style={{ color: '#ef4444' }}>*</span></label>
-          <select
-            style={S.select}
-            value={form.categoryId}
-            onChange={e => { set('categoryId', e.target.value); set('subcategoryId', '') }}
-            required
-          >
-            <option value="">Select a category</option>
-            {categories.filter(c => !c.isDeleted).map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
+          <Dropdown
+            value={form.categoryId || null}
+            options={categories.filter(c => !c.isDeleted).map(c => ({ label: c.name, value: c.id }))}
+            onChange={e => { set('categoryId', e.value ?? ''); set('subcategoryId', '') }}
+            placeholder="Select a category"
+            appendTo={document.body}
+            style={{ width: '100%' }}
+            className="tt-form-dropdown"
+          />
         </div>
       </div>
 
@@ -198,24 +213,26 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
       <div style={S.row}>
         <div style={S.field}>
           <label style={S.label}>Subcategory</label>
-          <select
-            style={S.select}
-            value={form.subcategoryId}
-            onChange={e => set('subcategoryId', e.target.value)}
+          <Dropdown
+            value={form.subcategoryId || null}
+            options={subcatOptions}
+            onChange={e => set('subcategoryId', e.value ?? '')}
             disabled={subcatOptions.length <= 1}
-          >
-            {subcatOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+            appendTo={document.body}
+            style={{ width: '100%' }}
+            className="tt-form-dropdown"
+          />
         </div>
         <div style={S.field}>
           <label style={S.label}>Status</label>
-          <select
-            style={S.select}
+          <Dropdown
             value={form.status}
-            onChange={e => set('status', e.target.value as AssetFormData['status'])}
-          >
-            {ASSET_STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-          </select>
+            options={ASSET_STATUS_OPTIONS}
+            onChange={e => set('status', e.value as AssetFormData['status'])}
+            appendTo={document.body}
+            style={{ width: '100%' }}
+            className="tt-form-dropdown"
+          />
         </div>
       </div>
 
@@ -260,13 +277,19 @@ const AssetForm = ({ initial, categories, schoolAName = 'School A', schoolBName 
         </div>
         <div style={S.field}>
           <label style={S.label}>Location / Room</label>
-          <input
-            style={S.input}
-            value={form.location}
-            onChange={e => set('location', e.target.value)}
-            placeholder="e.g. Boiler Room B"
-            onFocus={e => (e.currentTarget.style.borderColor = 'rgba(79,143,255,0.5)')}
-            onBlur={e  => (e.currentTarget.style.borderColor = 'var(--tt-border)')}
+          <Dropdown
+            value={form.location || null}
+            options={roomOptions}
+            onChange={e => set('location', e.value ?? '')}
+            placeholder="Select or type a room…"
+            editable
+            filter
+            appendTo={document.body}
+            style={{ width: '100%' }}
+            className="tt-form-dropdown"
+            optionDisabled="isGroupHeader"
+            optionLabel="label"
+            optionValue="value"
           />
         </div>
       </div>

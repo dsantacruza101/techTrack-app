@@ -198,6 +198,10 @@ body {
   border-radius: 18px !important;
   box-shadow: 0 24px 64px var(--tt-shadow-heavy) !important;
   overflow: hidden;
+  /* Remove transform so native <select> overlays position correctly.
+     A transform (even scale(1)) creates a new stacking context that
+     breaks the browser's native select dropdown positioning. */
+  transform: none !important;
 }
 .p-dialog .p-dialog-header {
   background: var(--tt-surface-overlay) !important;
@@ -495,7 +499,60 @@ body {
 .p-tooltip.p-tooltip-left  .p-tooltip-arrow  { border-color: transparent !important; }
 
 /* ── ConfirmDialog ──────────────────────────────────────────────── */
-.tt-confirm-danger { background: var(--tt-red) !important; border-color: var(--tt-red) !important; }
+.p-confirm-dialog .p-dialog-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  padding: 12px 20px 18px !important;
+}
+
+/* Reject button — matches secondary outlined style */
+.p-confirm-dialog .p-confirm-dialog-reject.p-button {
+  background: transparent !important;
+  border: 1px solid var(--tt-border) !important;
+  color: var(--text-color-secondary) !important;
+  border-radius: 10px !important;
+  padding: 0.55rem 1.1rem !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+.p-confirm-dialog .p-confirm-dialog-reject.p-button:hover {
+  background: rgba(255,255,255,0.05) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+}
+
+/* Accept button — matches primary action style */
+.p-confirm-dialog .p-confirm-dialog-accept.p-button {
+  background: var(--primary-color) !important;
+  border: 1px solid var(--primary-color) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  padding: 0.55rem 1.1rem !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+.p-confirm-dialog .p-confirm-dialog-accept.p-button:hover {
+  background: #6299ff !important;
+  border-color: #6299ff !important;
+}
+
+/* Danger variant (archive/delete) */
+.tt-confirm-danger.p-button {
+  background: var(--tt-red, #ef4444) !important;
+  border-color: var(--tt-red, #ef4444) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  padding: 0.55rem 1.1rem !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+.tt-confirm-danger.p-button:hover {
+  background: #f87171 !important;
+  border-color: #f87171 !important;
+}
 
 /* ─────────────────────────────────────────────────────────────────
    LAYOUT
@@ -573,6 +630,47 @@ body {
 
 /* Disabled row in DataTable */
 .tt-row-disabled td { opacity: 0.4; }
+
+/* ── Form dropdowns (replaces native <select> in dialogs) ────────── */
+.tt-form-dropdown.p-dropdown {
+  background: var(--tt-bg-input) !important;
+  border: 1px solid var(--tt-border) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  height: auto !important;
+}
+
+.tt-form-dropdown.p-dropdown .p-dropdown-label {
+  padding: 10px 13px !important;
+  font-size: 13px !important;
+  font-family: inherit !important;
+  color: var(--text-color) !important;
+  background: transparent !important;
+}
+
+.tt-form-dropdown.p-dropdown .p-dropdown-label.p-placeholder {
+  color: var(--tt-text-muted, rgba(255,255,255,0.35)) !important;
+}
+
+.tt-form-dropdown.p-dropdown .p-dropdown-trigger {
+  background: transparent !important;
+  color: var(--tt-text-faint, rgba(255,255,255,0.4)) !important;
+  width: 2.5rem !important;
+  border-radius: 0 9px 9px 0 !important;
+}
+
+.tt-form-dropdown.p-dropdown:not(.p-disabled):hover {
+  border-color: rgba(79,143,255,0.5) !important;
+}
+
+.tt-form-dropdown.p-dropdown.p-focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: none !important;
+}
+
+.tt-form-dropdown.p-dropdown.p-disabled {
+  opacity: 0.45 !important;
+}
 
 /* Assets toolbar buttons */
 .tt-toolbar-btn.p-button {
@@ -657,6 +755,24 @@ body {
   gap: 16px;
 }
 
+/* Search field sizing */
+.tt-search-field { width: 280px; max-width: 100%; }
+
+/* Toolbar responsive — icon-only on medium screens */
+@media (min-width: 768px) and (max-width: 1499px) {
+  .tt-toolbar-btn.p-button .p-button-label {
+    display: none !important;
+  }
+
+  .tt-toolbar-btn.p-button {
+    padding: 0.55rem 0.75rem !important;
+  }
+
+  .tt-search-field {
+    width: 180px;
+  }
+}
+
 /* Page content — tighter padding on mobile */
 @media (max-width: 767px) {
   .tt-page-content { padding: 16px 14px !important; }
@@ -691,6 +807,38 @@ body {
   /* Metric cards: 1 per row on very small */
   .grid > .col-3 { width: 100% !important; }
   .tt-topbar-subtitle { display: none !important; }
+}
+
+/* ── Form saving overlay ─────────────────────────────────────────── */
+.tt-form-body {
+  position: relative;
+}
+
+.tt-form-saving-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(15, 17, 26, 0.65);
+  backdrop-filter: blur(2px);
+  border-radius: 8px;
+}
+
+.tt-form-saving-overlay .pi-spin {
+  font-size: 1.6rem;
+  color: var(--primary-color);
+}
+
+.tt-form-saving-overlay span {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-color-secondary);
+  text-transform: uppercase;
 }
 
 /* Password component fixes */

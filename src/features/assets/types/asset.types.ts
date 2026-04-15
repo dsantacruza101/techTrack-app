@@ -29,6 +29,7 @@ export interface Asset {
   location: string
   notes: string
   careCompletions: Record<string, Timestamp>
+  careCompletionCosts: Record<string, number>
   isDeleted: boolean
   createdAt: Timestamp
   updatedAt: Timestamp

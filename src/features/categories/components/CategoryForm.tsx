@@ -45,7 +45,13 @@ const CategoryForm = ({ initial, saving, onSave, onCancel }: CategoryFormProps) 
   const color = getColor(form.colorKey)
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-column gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-column gap-4" style={{ position: 'relative' }}>
+      {saving && (
+        <div className="tt-form-saving-overlay">
+          <i className="pi pi-spin pi-spinner" />
+          <span>Saving…</span>
+        </div>
+      )}
 
       <div className="flex flex-column gap-2">
         <FieldLabel>Category Name</FieldLabel>
