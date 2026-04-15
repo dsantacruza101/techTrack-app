@@ -33,8 +33,9 @@ const toAsset = (id: string, data: Record<string, unknown>): Asset => ({
   assignedTo:       (data.assignedTo      as string) ?? '',
   location:         (data.location        as string) ?? '',
   notes:            (data.notes           as string) ?? '',
-  careCompletions:  (data.careCompletions as Record<string, Timestamp>) ?? {},
-  isDeleted:        (data.isDeleted       as boolean) ?? false,
+  careCompletions:      (data.careCompletions      as Record<string, Timestamp>) ?? {},
+  careCompletionCosts:  (data.careCompletionCosts  as Record<string, number>)    ?? {},
+  isDeleted:            (data.isDeleted             as boolean) ?? false,
   createdAt:        data.createdAt        as Timestamp,
   updatedAt:        data.updatedAt        as Timestamp,
 })

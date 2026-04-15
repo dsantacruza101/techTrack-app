@@ -29,13 +29,13 @@ export interface Asset {
   location: string
   notes: string
   careCompletions: Record<string, Timestamp>
-  careCompletionCosts: Record<string, number>
+  careCompletionCosts?: Record<string, number>
   isDeleted: boolean
   createdAt: Timestamp
   updatedAt: Timestamp
 }
 
-export type AssetFormData = Omit<Asset, 'id' | 'isDeleted' | 'createdAt' | 'updatedAt' | 'careCompletions'>
+export type AssetFormData = Omit<Asset, 'id' | 'isDeleted' | 'createdAt' | 'updatedAt' | 'careCompletions' | 'careCompletionCosts'>
 
 // ── Lifespan status ───────────────────────────────────────────────
 export type LifespanStatus = 'good' | 'aging' | 'replace'
