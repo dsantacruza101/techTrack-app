@@ -101,3 +101,117 @@
     display: none;
   }
 }
+
+/* ── More button ─────────────────────────────────────────────── */
+.tt-tabbar-more-btn {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── More sheet backdrop ─────────────────────────────────────── */
+.tt-more-backdrop {
+  position: fixed;
+  inset: 0;
+  bottom: 0;
+  z-index: 115;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  animation: tt-fade-in 0.18s ease;
+}
+
+/* ── More sheet ──────────────────────────────────────────────── */
+.tt-more-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(56px + env(safe-area-inset-bottom));
+  z-index: 116;
+  background: var(--tt-surface-card);
+  border: 1px solid var(--tt-border-soft);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  padding: 12px 20px 20px;
+  animation: tt-slide-up 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.tt-more-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--tt-border);
+  margin: 0 auto 16px;
+}
+
+.tt-more-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--tt-text-muted);
+  margin: 0 0 14px;
+}
+
+/* ── More grid ───────────────────────────────────────────────── */
+.tt-more-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.tt-more-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 4px 10px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--text-color-secondary);
+  font-size: 11px;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+  background: var(--tt-surface-section);
+}
+
+.tt-more-item:hover {
+  background: rgba(79, 143, 255, 0.08);
+  color: var(--text-color);
+}
+
+.tt-more-item.active {
+  color: var(--primary-color);
+  background: rgba(79, 143, 255, 0.12);
+}
+
+.tt-more-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--surface-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border: 1px solid var(--tt-border-soft);
+}
+
+.tt-more-item.active .tt-more-item-icon {
+  background: rgba(79, 143, 255, 0.15);
+  border-color: rgba(79, 143, 255, 0.3);
+}
+
+/* ── Animations ──────────────────────────────────────────────── */
+@keyframes tt-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes tt-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
