@@ -225,7 +225,7 @@ const InventoryPage = () => {
       </div>
 
       {/* Two-column layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16, alignItems: 'start' }}>
+      <div className="tt-with-panel" style={{ gridTemplateColumns: '1fr 320px' }}>
 
         {/* Stock Levels Table */}
         <div style={card({ overflow: 'hidden' })}>

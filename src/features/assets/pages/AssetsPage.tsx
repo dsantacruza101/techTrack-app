@@ -583,7 +583,8 @@ const AssetsPage = () => {
       )}
 
       {/* ── Table ───────────────────────────────────────────────────── */}
-      <div className="tt-table-scroll">
+      <div style={{ borderRadius: 12, overflow: 'hidden' }}>
+        <div className="tt-table-scroll">
         <DataTable
           value={[...visibleAssets].sort((a, b) => getLifespanPercent(b.purchaseDate, b.lifespanYears) - getLifespanPercent(a.purchaseDate, a.lifespanYears))}
           loading={loading}
@@ -592,7 +593,7 @@ const AssetsPage = () => {
           onRowClick={e => setDetailAssetId((e.data as Asset).id)}
           stripedRows
           showGridlines={false}
-          style={{ borderRadius: '12px', overflow: 'hidden', cursor: 'pointer' }}
+          style={{ cursor: 'pointer', minWidth: '1360px' }}
         >
           <Column header="Asset"       body={nameTemplate}      style={{ minWidth: 240 }} />
           <Column header="Status"      body={statusTemplate}    style={{ minWidth: 120 }} />
@@ -605,6 +606,7 @@ const AssetsPage = () => {
           <Column header="Replace By"  body={replaceByTemplate} style={{ minWidth: 140 }} />
           <Column header=""            body={actionsTemplate}   style={{ width: 130 }} align="right" />
         </DataTable>
+        </div>
       </div>
 
       {/* ── Detail panel ────────────────────────────────────────────── */}

@@ -363,13 +363,14 @@ const MapPage = () => {
       )}
 
       {/* ── Main layout ──────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 18, alignItems: 'start' }}>
+      <div className="tt-with-panel" style={{ gridTemplateColumns: '1fr 300px' }}>
 
         {/* ── Map area ──────────────────────────────────────────── */}
         <div>
           {/* Canvas */}
           <div
             ref={mapRef}
+            className="tt-map-canvas"
             style={{
               position: 'relative',
               background: 'var(--surface-section)',

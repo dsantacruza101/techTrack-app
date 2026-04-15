@@ -741,7 +741,7 @@ body {
 
 /* Tables — horizontal scroll on small screens */
 .tt-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.tt-table-scroll table { min-width: 560px; }
+.tt-table-scroll table { min-width: 1360px; }
 
 /* Two-column CSS grid sections */
 .tt-two-col {
@@ -793,7 +793,10 @@ body {
 
   /* Two-column grids collapse */
   .tt-two-col { grid-template-columns: 1fr !important; }
-  .tt-with-panel { grid-template-columns: 1fr !important; }
+  .tt-with-panel { grid-template-columns: 1fr !important; gap: 16px !important; }
+
+  /* Map canvas — shorter on mobile */
+  .tt-map-canvas { height: 320px !important; }
 
   /* Header row: stack on small screens */
   .tt-page-header { flex-direction: column !important; align-items: flex-start !important; }

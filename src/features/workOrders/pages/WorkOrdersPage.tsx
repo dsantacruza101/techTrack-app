@@ -254,9 +254,11 @@ const WorkOrdersPage = () => {
                     <select
                       value={wo.status}
                       onChange={e => updateStatus(wo.id, e.target.value as WOStatus)}
-                      style={{ background: 'transparent', border: 'none', color: 'var(--tt-text-secondary)', fontFamily: 'inherit', fontSize: 12, cursor: 'pointer', outline: 'none', width: '100%' }}
+                      style={{ background: 'var(--surface-card)', border: 'none', color: 'var(--tt-text-secondary)', fontFamily: 'inherit', fontSize: 12, cursor: 'pointer', outline: 'none', width: '100%' }}
                     >
-                      {WO_STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      {WO_STATUS_OPTIONS.map(o => (
+                        <option key={o.value} value={o.value} style={{ background: 'var(--surface-card)', color: 'var(--text-color)' }}>{o.label}</option>
+                      ))}
                     </select>
                   </div>
                   {can('edit_work_order') && (
