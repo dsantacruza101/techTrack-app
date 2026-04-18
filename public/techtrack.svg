@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Building body -->
+  <rect x="20" y="40" width="60" height="48" rx="4" fill="#4f8fff" />
+  <!-- Roof -->
+  <polygon points="12,42 50,12 88,42" fill="#2d6fd4" />
+  <!-- Door -->
+  <rect x="40" y="62" width="20" height="26" rx="3" fill="#0d1117" />
+  <!-- Left window -->
+  <rect x="26" y="50" width="14" height="12" rx="2" fill="#0d1117" />
+  <!-- Right window -->
+  <rect x="60" y="50" width="14" height="12" rx="2" fill="#0d1117" />
+  <!-- Gear (bottom-right overlay) -->
+  <circle cx="74" cy="72" r="14" fill="#0d1117" />
+  <circle cx="74" cy="72" r="8" fill="none" stroke="#4f8fff" stroke-width="3.5" />
+  <circle cx="74" cy="72" r="3" fill="#4f8fff" />
+  <!-- Gear teeth -->
+  <rect x="71.5" y="56" width="5" height="5" rx="1" fill="#4f8fff" />
+  <rect x="71.5" y="83" width="5" height="5" rx="1" fill="#4f8fff" />
+  <rect x="58" y="69.5" width="5" height="5" rx="1" fill="#4f8fff" />
+  <rect x="85" y="69.5" width="5" height="5" rx="1" fill="#4f8fff" />
+  <rect x="61" y="59" width="5" height="5" rx="1" transform="rotate(45 63.5 61.5)" fill="#4f8fff" />
+  <rect x="83" y="59" width="5" height="5" rx="1" transform="rotate(45 85.5 61.5)" fill="#4f8fff" />
+  <rect x="61" y="80" width="5" height="5" rx="1" transform="rotate(45 63.5 82.5)" fill="#4f8fff" />
+  <rect x="83" y="80" width="5" height="5" rx="1" transform="rotate(45 85.5 82.5)" fill="#4f8fff" />
+</svg>

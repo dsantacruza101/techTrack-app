@@ -8,8 +8,8 @@ export default function LoginPage() {
   } = useLogin()
 
   return (
-    <div 
-      className="flex align-items-center justify-content-center min-h-screen p-4"
+    <div
+      className="tt-login-page flex align-items-center justify-content-center min-h-screen p-4"
       style={{
         backgroundColor: '#0a0c10',
         backgroundImage: `

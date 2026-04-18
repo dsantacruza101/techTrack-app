@@ -844,6 +844,34 @@ body {
   text-transform: uppercase;
 }
 
+/* ── Login page — always dark regardless of app theme ────────────── */
+.tt-login-page .p-inputtext {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 12px !important;
+}
+.tt-login-page .p-inputtext::placeholder {
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+.tt-login-page .p-inputtext:focus {
+  border-color: rgba(79, 143, 255, 0.6) !important;
+  box-shadow: 0 0 0 2px rgba(79, 143, 255, 0.15) !important;
+}
+.tt-login-page .p-inputtext:enabled:hover {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.tt-login-page .p-password-show-icon,
+.tt-login-page .p-password-hide-icon {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+.tt-login-page .p-divider-content {
+  background: #0d1117 !important;
+}
+.tt-login-page .p-divider::before {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
 /* Password component fixes */
 .p-password { position: relative; display: inline-flex; width: 100%; }
 .p-password .p-inputtext { padding-right: 3rem !important; }
