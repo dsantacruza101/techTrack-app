@@ -29,6 +29,8 @@ dist-ssr
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+*firebase-adminsdk*.json
+*serviceAccount*.json
 
 # Si usas funciones de Firebase (Cloud Functions)
 functions/node_modules/
