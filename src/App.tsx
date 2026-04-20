@@ -47,9 +47,9 @@ const App = () => (
           {/* Admin + superAdmin only */}
           <Route path="categories" element={<ProtectedRoute allowedRoles={['superAdmin', 'admin']}><CategoriesPage /></ProtectedRoute>} />
           <Route path="users"      element={<ProtectedRoute allowedRoles={['superAdmin', 'admin']}><UsersPage /></ProtectedRoute>} />
-          <Route path="finance"    element={<ProtectedRoute allowedRoles={['superAdmin', 'admin']}><FinancePage /></ProtectedRoute>} />
-          <Route path="reports"    element={<ProtectedRoute allowedRoles={['superAdmin', 'admin']}><ReportsPage /></ProtectedRoute>} />
-          <Route path="analytics"  element={<ProtectedRoute allowedRoles={['superAdmin', 'admin']}><AnalyticsPage /></ProtectedRoute>} />
+          <Route path="finance"    element={<ProtectedRoute allowedRoles={['superAdmin', 'admin', 'demo']}><FinancePage /></ProtectedRoute>} />
+          <Route path="reports"    element={<ProtectedRoute allowedRoles={['superAdmin', 'admin', 'demo']}><ReportsPage /></ProtectedRoute>} />
+          <Route path="analytics"  element={<ProtectedRoute allowedRoles={['superAdmin', 'admin', 'demo']}><AnalyticsPage /></ProtectedRoute>} />
           <Route path="options"    element={<ProtectedRoute allowedRoles={['superAdmin', 'admin']}><OptionsPage /></ProtectedRoute>} />
 
           {/* superAdmin only */}

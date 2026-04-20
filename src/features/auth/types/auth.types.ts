@@ -1,4 +1,4 @@
-export type Role = 'superAdmin' | 'admin' | 'user'
+export type Role = 'superAdmin' | 'admin' | 'user' | 'demo'
 
 export type Permission =
   // Assets

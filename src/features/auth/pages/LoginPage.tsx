@@ -63,6 +63,30 @@ export default function LoginPage() {
             Contact your administrator if you need access.
           </p>
         </div>
+
+        {/* Demo credentials banner */}
+        <div
+          className="mt-3 p-4 border-round-2xl border-1"
+          style={{
+            backgroundColor: 'rgba(79,143,255,0.06)',
+            borderColor: 'rgba(79,143,255,0.2)',
+          }}
+        >
+          <p className="m-0 mb-2 text-center text-xs font-semibold uppercase tracking-widest"
+            style={{ color: 'rgba(79,143,255,0.7)', letterSpacing: '0.1em' }}>
+            Demo Access
+          </p>
+          <div className="flex flex-column gap-1">
+            <div className="flex justify-content-between align-items-center">
+              <span className="text-xs text-white-alpha-40">Email</span>
+              <span className="font-mono text-xs text-white-alpha-70">demo@techtrack.app</span>
+            </div>
+            <div className="flex justify-content-between align-items-center">
+              <span className="text-xs text-white-alpha-40">Password</span>
+              <span className="font-mono text-xs text-white-alpha-70">userdemo123</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

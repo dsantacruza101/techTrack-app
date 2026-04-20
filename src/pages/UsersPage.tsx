@@ -24,12 +24,14 @@ const ROLE_SEVERITY: Record<Role, 'info' | 'warning' | 'danger'> = {
   user:       'info',
   admin:      'warning',
   superAdmin: 'danger',
+  demo:       'info',
 }
 
 const ROLE_LABEL: Record<Role, string> = {
   user:       'User',
   admin:      'Admin',
   superAdmin: 'Super Admin',
+  demo:       'Demo',
 }
 
 type TableRow = (UserProfile & { _pending: false }) | (PendingUser & { _pending: true })

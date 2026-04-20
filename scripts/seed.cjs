@@ -458,10 +458,24 @@ async function seedAssets() {
   console.log(`  ✓ ${ASSETS.length} assets written`)
 }
 
+// ── Settings ──────────────────────────────────────────────────────────────────
+
+async function seedSettings() {
+  console.log('Seeding settings...')
+  await db.collection('settings').doc('app').set({
+    appTitle:    'TechTrack',
+    appSubtitle: 'Asset Management',
+    schoolAName: 'Maplewood Academy',
+    schoolBName: 'Riverside Preparatory School',
+  }, { merge: true })
+  console.log('  ✓ Settings written')
+}
+
 // ── Run ───────────────────────────────────────────────────────────────────────
 
 async function main() {
   console.log('\nTechTrack seed starting...\n')
+  await seedSettings()
   await seedCategories()
   await seedAssets()
   console.log('\nDone! All collections seeded.')

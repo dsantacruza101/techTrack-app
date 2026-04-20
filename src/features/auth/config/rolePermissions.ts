@@ -56,4 +56,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     'submit_it_ticket',
     'log_inventory',
   ],
+  demo: [
+    'view_finance',
+    'view_reports',
+  ],
 }

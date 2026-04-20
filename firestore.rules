@@ -18,9 +18,15 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superAdmin';
     }
 
+    function isDemo() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'demo';
+    }
+
     // Users collection
     match /users/{userId} {
-      allow read, write: if isAdminOrSuperAdmin();
+      allow read: if isAdminOrSuperAdmin() || isDemo();
+      allow write: if isAdminOrSuperAdmin();
       allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
 
@@ -29,7 +35,7 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, delete: if isAdminOrSuperAdmin();
       allow update: if isAdminOrSuperAdmin();
-      allow update: if isAuthenticated() &&
+      allow update: if isAuthenticated() && !isDemo() &&
         request.resource.data.diff(resource.data).affectedKeys()
           .hasOnly(['careCompletions', 'updatedAt']);
     }
@@ -43,9 +49,9 @@ service cloud.firestore {
     // Work Orders: all authenticated can read & create; admin can edit/delete
     match /workOrders/{woId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
+      allow create: if isAuthenticated() && !isDemo();
       allow update: if isAdminOrSuperAdmin() ||
-        (isAuthenticated() &&
+        (isAuthenticated() && !isDemo() &&
           request.resource.data.diff(resource.data).affectedKeys()
             .hasOnly(['status', 'updatedAt']));
       allow delete: if isAdminOrSuperAdmin();
@@ -54,7 +60,7 @@ service cloud.firestore {
     // IT Tickets: all authenticated can read & create; admin can edit/delete/resolve
     match /itTickets/{ticketId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
+      allow create: if isAuthenticated() && !isDemo();
       allow update, delete: if isAdminOrSuperAdmin();
     }
 
@@ -63,7 +69,7 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, delete: if isAdminOrSuperAdmin();
       allow update: if isAdminOrSuperAdmin();
-      allow update: if isAuthenticated() &&
+      allow update: if isAuthenticated() && !isDemo() &&
         request.resource.data.diff(resource.data).affectedKeys()
           .hasOnly(['inStock', 'updatedAt']);
     }
@@ -71,7 +77,7 @@ service cloud.firestore {
     // Inventory stock logs (subcollection)
     match /inventory/{itemId}/logs/{logId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
+      allow create: if isAuthenticated() && !isDemo();
       allow update, delete: if isAdminOrSuperAdmin();
     }
 
