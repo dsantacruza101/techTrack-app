@@ -84,7 +84,7 @@ service cloud.firestore {
     // App settings (single document: settings/app)
     match /settings/{docId} {
       allow read: if isAuthenticated();
-      allow write: if isSuperAdmin();
+      allow write: if isAdminOrSuperAdmin();
     }
 
     // Pending users

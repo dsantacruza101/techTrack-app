@@ -17,6 +17,8 @@ import {
 import { usePermissions } from '../../auth/hooks/usePermissions'
 import { useTopbarTitle } from '../../../contexts/TopbarContext'
 import type { AppSettings } from '../types/settings.types'
+import { parseCSV } from '../utils/csv'
+import CSVImportModal from '../components/CSVImportModal'
 
 let _tid = 1
 const newId = () => `t_${Date.now()}_${_tid++}`
@@ -360,6 +362,18 @@ const OptionsPage = () => {
   const jsonInputRef = useRef<HTMLInputElement>(null)
   const [importingJSON, setImportingJSON] = useState(false)
 
+  const csvInputRef = useRef<HTMLInputElement>(null)
+  const [csvImportData, setCsvImportData] = useState<{ headers: string[]; rows: string[][] } | null>(null)
+
+  const handleCSVFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return
+    e.target.value = ''
+    const parsed = parseCSV(await file.text())
+    if (parsed.length < 2) { alert('CSV file must have a header row and at least one data row.'); return }
+    const [headers, ...rows] = parsed
+    setCsvImportData({ headers, rows })
+  }
+
   const handleJSONImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return
     e.target.value = ''
@@ -513,6 +527,11 @@ const OptionsPage = () => {
             <ActionBtn icon="↓" label="Export Assets as CSV"      onClick={exportCSV}  />
             <ActionBtn icon="↓" label="Export Full Backup (JSON)" onClick={exportJSON} />
             <ActionBtn
+              icon="↑" label="Import Assets from CSV"
+              onClick={() => csvInputRef.current?.click()}
+            />
+            <input ref={csvInputRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleCSVFile} />
+            <ActionBtn
               icon="↑" label={importingJSON ? 'Importing…' : 'Import from JSON Backup'}
               onClick={() => jsonInputRef.current?.click()} disabled={importingJSON}
             />
@@ -588,6 +607,15 @@ const OptionsPage = () => {
           ))}
         </div>
       </div>
+
+      <CSVImportModal
+        data={csvImportData}
+        categories={activeCategories}
+        schoolAName={appForm.schoolAName}
+        schoolBName={appForm.schoolBName}
+        onClose={() => setCsvImportData(null)}
+        onImported={() => setCsvImportData(null)}
+      />
 
     </div>
   )
