@@ -408,11 +408,33 @@ Two `onCall`/`onSchedule` v2 functions, region `us-central1`, `maxInstances: 10`
 
 ---
 
-## 7. CSV Import/Export (added 2026-07-14, `src/features/settings/`)
+## 7. CSV Import/Export
+
+**⚠ There are two independent CSV importers in this app** — a real gotcha if you're porting "the" CSV import feature. Keep both, or consolidate, but don't assume there's only one.
+
+### 7a. Flexible importer — `src/features/settings/` (Options & Settings → Data Management), added 2026-07-14
+Built for importing arbitrary third-party exports (e.g. migrating from a school's old asset system) whose column headers won't match TechTrack's own field names.
 
 - `utils/csv.ts` — hand-rolled RFC4180 parser (`parseCSV(text): string[][]`, handles quoted fields/embedded commas/newlines/`""` escapes, no external dependency), plus `parseCSVNumber`/`parseCSVDate` coercion helpers.
-- `components/CSVImportModal.tsx` — column-mapping importer: auto-guesses TechTrack field ↔ CSV header via an alias list (`FIELD_DEFS`), lets the user remap any column via dropdown, matches free-text category names against existing `Category.name` (case-insensitive; no match → imported uncategorized, flagged in the summary), writes rows sequentially via `assetService.create` (no batching — fine for tens of rows, slow for hundreds).
-- Existing (pre-dating this session): CSV **export** (`exportCSV` in `OptionsPage.tsx`, plain `assets.map` → quoted CSV string → blob download) and full JSON backup export/import (round-trips both `assets` and `categories` with Firestore Timestamp conversion).
+- `components/CSVImportModal.tsx` — column-mapping importer:
+  - **Auto-mapping** (`guessMapping`): for each TechTrack field, tries an **exact** alias match first (each field has an alias list in `FIELD_DEFS`, e.g. name↔`['name','asset name','item name','asset id']`), then falls back to **substring containment** if no exact match — this two-pass approach was added after the exact-only version silently mis-mapped a real client file (see the "why this matters" note below). Each CSV header can only be claimed by one field (first field in `FIELD_DEFS` order wins ties).
+  - User can remap any field via dropdown before confirming.
+  - **Auto-creates missing categories**: free-text category values that don't match an existing `Category.name` (case-insensitive) get a new category created on the fly (icon `pi pi-box`, color `blue`) rather than importing uncategorized — tracked and reported in the completion summary.
+  - **Duplicate detection by Asset Tag**: builds a `Set` of existing assets' `assetTag` values (plus tags created earlier in the *same* import run) and skips any row whose mapped Asset-Tag column value already exists — makes re-running an import (or importing an updated re-export) safe without creating duplicate records. Reported separately in the summary ("N skipped as duplicates").
+  - Writes rows **sequentially** via `assetService.create` (no batching — fine for tens/hundreds of rows, will be slow for thousands; this codebase's real test file was 1254 rows and completed, just not instantly).
+  - **UI is locked during import**: all mapping `<select>`s, the Cancel button, and the dialog's ✕/Escape are disabled/blocked while `importing` is true (added after user feedback that leaving them live looked buggy) — otherwise a user could re-map fields or close the dialog mid-write while the async loop keeps running in the background untethered from the dialog's visibility.
+  - **Why this matters**: the very first shipped version of `guessMapping` included `'description'` as an alias for the "name" field. A real client export had both an `Asset ID` column (the actual name-like field) and a separate, mostly-blank `Description` column — the matcher grabbed `Description` first, so ~96% of rows had no name and got silently skipped. Root cause: alias lists that are too generic, and exact-only matching with no visibility into *why* a column got picked. If extending this further, prefer more specific aliases over generic ones, and consider surfacing the auto-detected mapping's confidence/reasoning in the UI rather than just the result.
+
+### 7b. Rigid importer — `src/features/assets/pages/AssetsPage.tsx` ("+ Add Asset" → "📂 Import CSV" tab), pre-dates this session
+Designed for round-tripping TechTrack's *own* CSV export format, not third-party files.
+
+- `parseCSVLine` — simpler single-line CSV tokenizer (no embedded-newline support, adequate since TechTrack's own export never embeds raw newlines in a field).
+- Column matching is **exact-header-only** against a fixed template: `Name,Category,Subcategory,Model,Serial,Status,Assigned,Location,Purchase Date,Lifespan (yrs),Warranty Exp.,Est. Value,Notes` (there's a "Copy Template Headers" button that copies this exact string). If a file's headers don't match this list verbatim, every row's `name` comes back empty and the whole import silently fails with **"No valid rows found in CSV."** — this is what happened when a real Panda-export file (headers like `Asset ID`, not `Name`) was fed into this importer instead of 7a's. Not a bug in the traditional sense — it's working as designed for its narrower purpose — but it's a sharp edge if a user reaches for the wrong entry point. If porting, either keep the two importers' purposes clearly distinct in the UI copy, or unify them on 7a's flexible-mapping logic.
+- No duplicate detection, no auto-category-creation — has its own simpler "some categories weren't matched, shown in red, save as uncategorized" inline warning instead.
+- Also has its own CSV **export** (`handleExportCSV`) using the same template headers, and a "📋 Copy Existing" tab for cloning an existing asset as a starting point.
+
+### 7c. Also existing (pre-dates this session)
+Full JSON backup export/import in `OptionsPage.tsx` — round-trips both `assets` and `categories` with Firestore Timestamp conversion, via direct `setDoc`/`getDoc` calls rather than going through the service layer.
 
 ---
 
@@ -423,3 +445,5 @@ Two `onCall`/`onSchedule` v2 functions, region `us-central1`, `maxInstances: 10`
 3. **Silent error swallowing**: virtually every service method returns `boolean` and swallows the actual Firestore error. If the target app has better error surfacing conventions, this is worth improving during the port rather than copying as-is.
 4. **Scheduled reports = single recipient**: decide up front if the target app needs multi-recipient or true real-time alerts (see §3 ScheduledReport note) — changes the schema before you build UI on top of it.
 5. **Multiple-Firebase-project `.env` footgun**: see the ⚠ note in §1 — don't copy the "two commented blocks in one `.env`" pattern into the merged app; use Vite mode-based env files or a build-time project-ID assertion instead.
+6. **Two CSV importers, kept intentionally** (see §7): decided to leave both as-is rather than consolidate. If the merge target only wants one, port §7a's flexible mapper — it's the strict superset in capability.
+7. **PrimeReact `Toast` default `appendTo` is `'self'`, not `document.body`.** Three pages in this app (Assets, Categories, Users) instantiate `<Toast ref={toast} position="top-right" />` without `appendTo={document.body}`, which meant toast messages rendered *behind* any open `Dialog`'s overlay — nearly invisible, reported by the client as "the toast displays in the back i could barely saw it." Fixed by adding `appendTo={document.body}` to all three. **If porting any PrimeReact `Toast` usage, always set `appendTo={document.body}` explicitly** — don't rely on the default.
