@@ -611,6 +611,7 @@ const OptionsPage = () => {
       <CSVImportModal
         data={csvImportData}
         categories={activeCategories}
+        assets={assets}
         schoolAName={appForm.schoolAName}
         schoolBName={appForm.schoolBName}
         onClose={() => setCsvImportData(null)}

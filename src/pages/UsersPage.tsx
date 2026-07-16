@@ -249,7 +249,7 @@ const UsersPage = () => {
 
   return (
     <div className="flex flex-column gap-4">
-      <Toast ref={toast} position="top-right" />
+      <Toast ref={toast} position="top-right" appendTo={document.body} />
       <ConfirmDialog />
 
       {/* ── Header ──────────────────────────────────────────────── */}
